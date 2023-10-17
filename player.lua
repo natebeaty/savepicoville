@@ -7,8 +7,8 @@ function make_player()
   p.y=24
   p.dx=0 --player movement
   p.dy=0
-  p.w=8 --player dimensions
-  p.h=8
+  p.w=7 --player dimensions
+  p.h=7
 
   p.flipx = false -- flip sprite x?
   p.flipy = false -- flip sprite y?
