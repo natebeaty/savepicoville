@@ -24,5 +24,5 @@ function _draw()
 
   --draw the player's sprite at
   --p.x,p.y
-  spr(p.sprite,p.x,p.y)
+  spr(p.sprite,p.x,p.y,1,1,p.flipx,p.flipy)
 end
