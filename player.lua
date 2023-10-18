@@ -26,7 +26,7 @@ function make_player()
   --friction (1=none, 0=instant)
   p.drg=0.1
 
-  p.die = function()
+  p.die=function()
     sfx(01)
     if (p.life=="") then
       game_over()
@@ -38,7 +38,7 @@ function make_player()
     end
   end
 
-  p.respawn = function()
+  p.respawn=function()
     p.x=0
     p.y=104
   end
@@ -55,54 +55,53 @@ function move_player()
 
     -- check for button presses to get sprite, flip, and direction
     if (btn(0)) then
-      p.last_flipx = false
-      p.flipx = false
+      p.last_flipx=false
+      p.flipx=false
       if p.dx<0 then p.dx-=p.a else p.dx=-p.minspd end
       if (not btn(2) and not btn(3)) then
         p.dy=0
-        p.sprite = 19
-        p.flipy = false
+        p.sprite=19
+        p.flipy=false
       else
-        p.sprite = 20
-        p.flipx = true
-        if (p.dy<0) then p.flipy = false else p.flipy = true end
+        p.flipx=true
+        if (p.dy<0) then p.sprite=20 else p.sprite=21 end
       end
     end
     if (btn(1)) then
-      p.last_flipx = true
-      p.flipx = true
+      p.last_flipx=true
+      p.flipx=true
       if p.dx>0 then p.dx+=p.a else p.dx=p.minspd end
       if (not btn(2) and not btn(3)) then
         p.dy=0
-        p.sprite = 19
-        p.flipy = false
+        p.sprite=19
+        p.flipy=false
       else
-        p.sprite = 20
-        p.flipx = false
-        if (p.dy<0) then p.flipy = false else p.flipy = true end
+        p.flipx=false
+        if (p.dy<0) then p.sprite=20 else p.sprite=21 end
       end
     end
     if (btn(2)) then
-      p.flipy = false
+      p.flipy=false
       if p.dy<0 then p.dy-=p.a else p.dy=-p.minspd end
       if (not btn(0) and not btn(1)) then
         p.dx=0
-        p.sprite = 18
-        p.flipx = false
+        p.sprite=18
+        p.flipx=false
       else
-        p.sprite = 20
-        if (p.dx<0) then p.flipx = true else p.flipx = false end
+        p.sprite=20
+        if (p.dx<0) then p.flipx=true else p.flipx=false end
       end
     end
     if (btn(3)) then
-      p.flipy = true
+      p.flipy=true
       if p.dy>0 then p.dy+=p.a else p.dy=p.minspd end
       if (not btn(0) and not btn(1)) then
         p.dx=0
-        p.sprite = 18
-        p.flipx = true
+        p.sprite=18
+        p.flipx=true
       else
-        p.sprite = 20
+        p.flipy=false
+        p.sprite=21
       end
     end
 
@@ -133,9 +132,9 @@ function move_player()
 
     --neutral state if not moving
     if (p.dx==0 and p.dy==0) then
-      p.sprite = p.sprite_neutral
-      p.flipy = false
-      p.flipx = p.last_flipx
+      p.sprite=p.sprite_neutral
+      p.flipy=false
+      p.flipx=p.last_flipx
     end
   end
 end
