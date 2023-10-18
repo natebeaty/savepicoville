@@ -15,7 +15,7 @@ new_bullet = function(x,y,dx,dy)
   obj.update = function(this)
     -- check for collisions with enemy
     foreach(enemies, function(obj)
-      if (coll(this,obj)) then
+      if (obj.dying==0 and coll(this,obj)) then
         p.score+=1
         obj.die(obj)
         del(bullets, this)
