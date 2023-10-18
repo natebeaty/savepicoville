@@ -1,37 +1,40 @@
-
 --player functions
 
 function make_player()
   p={}
-  p.x=24 --start position
-  p.y=24
+  p.x=0 --player position
+  p.y=104
   p.dx=0 --player movement
   p.dy=0
-  p.w=7 --player dimensions
-  p.h=7
+  p.box={x1=0,y1=0,x2=7,y2=7}  --collision box
+  p.life="♥♥♥"
+  p.fuel=999
+  p.score=0
 
-  p.flipx = false -- flip sprite x?
-  p.flipy = false -- flip sprite y?
+  p.last_flipx=true
+  p.flipx=false --flip sprite horizontal
+  p.flipy=false --flip sprite vertical
+  p.sprite_neutral=19 --player sprite, neutral
+  p.sprite=p.sprite_neutral --current player sprite
 
-  p.sprite=18 --player sprite
-
-  -- max speed
-  p.maxspd=4
-  -- minimum speed
-  p.minspd=1
+  p.maxspd=4 --max speed
+  p.minspd=1 --min speed
 
   p.a=.8 --acceleration
 
-  --friction
-  --1 = no slow down
-  --0 = instant halt
+  --friction (1=none, 0=instant)
   p.drg=0.1
 
+  p.die = function()
+    print("omg", 20, 20)
+    game_over=true
+  end
 end
 
 function move_player()
-  -- button pressed, accelerate
+  -- check for button presses to get sprite, flip, and direction
   if (btn(0)) then
+    p.last_flipx = false
     p.flipx = false
     if p.dx<0 then p.dx-=p.a else p.dx=-p.minspd end
     if (not btn(2) and not btn(3)) then
@@ -45,6 +48,7 @@ function move_player()
     end
   end
   if (btn(1)) then
+    p.last_flipx = true
     p.flipx = true
     if p.dx>0 then p.dx+=p.a else p.dx=p.minspd end
     if (not btn(2) and not btn(3)) then
@@ -81,24 +85,24 @@ function move_player()
     end
   end
 
-  -- max speed
+  --limit to max speed
   p.dx=mid(-p.maxspd, p.dx, p.maxspd)
   p.dy=mid(-p.maxspd, p.dy, p.maxspd)
 
-  -- check if next to wall
+  --check if next to wall
   wall_check(p)
 
-  -- can move?
+  --can move?
   if (can_move(p,p.dx,p.dy)) then
     p.x+=p.dx
     p.y+=p.dy
   end
 
-  -- add drag
+  --add drag
   if (abs(p.dx)>0) p.dx*=p.drg
   if (abs(p.dy)>0) p.dy*=p.drg
 
-  -- make sure they don't drop below min speed
+  --make sure they don't drop below min speed
   if (abs(p.dx)!=0 and abs(p.dx)<p.minspd) then
     if (p.dx<0) then p.dx=-p.minspd else p.dx=p.minspd end
   end
@@ -106,4 +110,10 @@ function move_player()
     if (p.dy<0) then p.dy=-p.minspd else p.dy=p.minspd end
   end
 
+  --neutral state if not moving
+  if (p.dx==0 and p.dy==0) then
+    p.sprite = p.sprite_neutral
+    p.flipy = false
+    p.flipx = p.last_flipx
+  end
 end
