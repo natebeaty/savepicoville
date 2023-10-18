@@ -3,7 +3,7 @@
 function _init()
   bullets={}
   enemies={}
-  game_over=false
+  gameover=false
   mx,my=0,0 --movement
   cx,cy=0,0 --camera
   t=0
@@ -30,8 +30,12 @@ function _update()
   end)
 end
 
+function game_over()
+  gameover=true
+end
+
 function _draw()
-  if game_over then return end
+  if gameover then return end
   cls()
 
   -- update_camera()
@@ -50,7 +54,6 @@ function _draw()
     obj.draw(obj)
   end)
   foreach(enemies, function(obj)
-    if (coll(obj,p)) obj.die(obj)
     obj.draw(obj)
   end)
 
