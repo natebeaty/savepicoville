@@ -8,6 +8,21 @@ function game_over()
   mode="game over"
 end
 
+function start_game()
+  music(-1)
+  sfx(05)
+  enemies={}
+  mode="game"
+end
+
+function restart()
+  t=0
+  p.score=0
+  p.life="♥♥♥"
+  mode="title"
+  music(00, 2500)
+end
+
 function _init()
   mode="title"
   bullets={}
@@ -18,7 +33,7 @@ function _init()
   t=0
   transition_speed=0.25
   make_player()
-  music(00)
+  music(00, 2500)
 end
 
 function _update()
@@ -31,9 +46,7 @@ function _update()
       obj.update(obj)
     end)
     if (t>5 and btn(4)) then
-      sfx(05)
-      enemies={}
-      mode="game"
+      start_game()
     end
 
   elseif mode=="game" then
@@ -57,10 +70,7 @@ function _update()
   elseif mode=="game over" then
 
     if (t>5 and btn(4)) then
-      t=0
-      p.score=0
-      p.life="♥♥♥"
-      mode="title"
+      restart()
     end
 
   end
