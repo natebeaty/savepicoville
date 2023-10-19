@@ -1,12 +1,12 @@
 -- enemies
 
 -- spawn enemies in update function
-check_enemy_spawn = function()
-  if (count(enemies)<2 and rnd(100) > 95) add(enemies, new_enemy(rnd(128), -10))
+function check_enemy_spawn(max)
+  if (count(enemies)<max and rnd(100) > 95) add(enemies, new_enemy(rnd(128), -10))
 end
 
 -- construct new enemy
-new_enemy = function(x, y)
+function new_enemy(x, y)
   local obj = {x=x, y=y, dx=0, dy=0.5, sprite=16, t=0, dying=0}
   obj.box = {x1=0,y1=3,x2=7,y2=7}
 
@@ -26,13 +26,15 @@ new_enemy = function(x, y)
     else
       if t%5==0 then this.sprite=16 else this.sprite=17 end
 
+      --herky jerk
       if (rnd(100) > 97) this.dx = (rnd(5) - 2.5)/2
-      if (rnd(100) > 97) this.dy = (rnd(3) - 1.5)/2
-      --move the enemy
+      if (rnd(100) > 98) this.dy = (rnd(3) - 1)/2
+      --move it
       this.x += this.dx
       this.y += this.dy
+      -- bounce from top
       if (this.y < -10) then
-        this.dy = 0.5
+        this.dy = 1
         this.y = -10
       end
       -- offscreen?

@@ -1,6 +1,6 @@
 -- bullets
 
-new_bullet = function(x,y,dx,dy)
+function new_bullet(x,y,dx,dy)
   local obj = {
     x=x,
     y=y,
