@@ -28,13 +28,13 @@ function make_player()
 
   p.die=function()
     sfx(01)
+    p.life=sub(p.life,0,#p.life-1)
     if (p.life=="") then
       game_over()
     else
       p.dying=10
       p.dx=0
       p.dy=0
-      p.life=sub(p.life,0,#p.life-1)
     end
   end
 
