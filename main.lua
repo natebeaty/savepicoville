@@ -1,4 +1,4 @@
---save new york!
+--save chicago!
 
 function game_over()
   t=0
@@ -20,6 +20,7 @@ function restart()
   p.score=0
   p.life="♥♥♥"
   mode="title"
+  make_buildings()
   music(00, 2500)
 end
 
@@ -33,6 +34,7 @@ function _init()
   t=0
   transition_speed=0.25
   make_player()
+  make_buildings()
   music(00, 2500)
 end
 
@@ -76,13 +78,60 @@ function _update()
   end
 end
 
+function make_buildings()
+  -- reset to blue
+  for x=0,16 do
+    for y=0,14 do
+      mset(x,y,8)
+    end
+  end
+
+  -- random buildings
+  buildings={}
+  for i=0,3 do
+    building={
+      rows={},
+      width=flr(rnd(2))+2,
+      x=3+(i*3+flr(rnd(2)))
+    }
+    for n=1,flr(rnd(5)+3) do
+      row={}
+      for x=1,building.width do
+        -- print(x)
+        add(row, {
+          sprite=flr(rnd(5))+1,
+          dmg=0
+        })
+      end
+      add(building.rows, row)
+    end
+    add(buildings, building)
+  end
+  -- write to map
+  foreach(buildings, function(building)
+    i=0
+    foreach(building.rows, function(row)
+      i+=1
+      -- print(i)
+      for j=1,building.width do
+        mset(building.x+j, 15-i, row[j].sprite)
+        -- spr(row[j].sprite, building.x+8*j, 120-(8*i))
+      end
+    end)
+  end)
+end
+
+function draw_bg()
+  map(0,0,0,0,128,32)
+end
+
 -- draw!
 function _draw()
   cls()
+  draw_bg()
 
   if mode=="title" then
 
-    map(0,0,0,0,128,32)
     foreach(enemies, function(obj)
       obj.draw(obj)
     end)
@@ -95,7 +144,6 @@ function _draw()
   elseif mode=="game" then
 
     --update_camera()
-    map(0,0,0,0,128,32)
 
     --draw player
     spr(p.sprite, p.x, p.y, 1, 1, p.flipx, p.flipy)
@@ -116,7 +164,6 @@ function _draw()
 
   elseif mode=="game over" then
 
-      map(0,0,0,0,128,32)
       rectfill(0,0,128,8,14)
       print("score:"..p.score, 50, 2, 1)
       -- print("beaty softworks presents",17,2,1)
