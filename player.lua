@@ -2,8 +2,8 @@
 
 function make_player()
   p={}
-  p.x=0 --player position
-  p.y=104
+  p.x=4 --player position
+  p.y=112
   p.dx=0 --player movement
   p.dy=0
   p.box={x1=0,y1=0,x2=7,y2=7}  --collision box
@@ -15,7 +15,7 @@ function make_player()
   p.last_flipx=true
   p.flipx=false --flip sprite horizontal
   p.flipy=false --flip sprite vertical
-  p.sprite_neutral=19 --player sprite, neutral
+  p.sprite_neutral=18 --player sprite, neutral
   p.sprite=p.sprite_neutral --current player sprite
 
   p.maxspd=4 --max speed
@@ -39,8 +39,9 @@ function make_player()
   end
 
   p.respawn=function()
-    p.x=0
-    p.y=104
+    p.last_flipx=true
+    p.x=4
+    p.y=112
   end
 end
 
