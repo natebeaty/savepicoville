@@ -1,5 +1,22 @@
 --save chicago!
 
+function _init()
+  mode="title"
+  explosions={}
+  bullets={}
+  enemies={}
+  supply={}
+  balloon={}
+  gameover=false
+  mx,my=0,0 --movement
+  cx,cy=0,0 --camera
+  t=0
+  transition_speed=0.25
+  make_player()
+  make_buildings()
+  music(00, 2500)
+end
+
 function game_over()
   t=0
   enemies={}
@@ -24,19 +41,6 @@ function restart()
   music(00, 2500)
 end
 
-function _init()
-  mode="title"
-  bullets={}
-  enemies={}
-  gameover=false
-  mx,my=0,0 --movement
-  cx,cy=0,0 --camera
-  t=0
-  transition_speed=0.25
-  make_player()
-  make_buildings()
-  music(00, 2500)
-end
 
 function _update()
   t+=1
@@ -53,24 +57,32 @@ function _update()
 
   elseif mode=="game" then
 
-    if (t%15==0) then
-      -- moving?
+    if (p.dying==0 and t%2==0) then
+      -- moving? reduce fuel
       if (p.dy!=0 or p.dx!=0) p.fuel-=1
+        if (p.fuel==0) then
+          p.die()
+        end
     end
 
     move_player()
     player_fire()
     check_enemy_spawn(2)
-    --update_map()
-    foreach(bullets, function(obj)
-      obj.update(obj)
-    end)
-    foreach(enemies, function(obj)
-      obj.update(obj)
+    check_supply_spawn()
+    update_map()
+    foreach({bullets,enemies,supply,balloon,explosions}, function(grp)
+      foreach(grp, function(obj)
+        obj.update(obj)
+      end)
     end)
 
   elseif mode=="game over" then
 
+    foreach({supply,balloon,explosions}, function(grp)
+      foreach(grp, function(obj)
+        obj.update(obj)
+      end)
+    end)
     if (t>5 and btn(4)) then
       restart()
     end
@@ -97,7 +109,6 @@ function make_buildings()
     for n=1,flr(rnd(5)+3) do
       row={}
       for x=1,building.width do
-        -- print(x)
         add(row, {
           sprite=flr(rnd(5))+1,
           dmg=0
@@ -112,7 +123,6 @@ function make_buildings()
     i=0
     foreach(building.rows, function(row)
       i+=1
-      -- print(i)
       for j=1,building.width do
         mset(building.x+j, 15-i, row[j].sprite)
         -- spr(row[j].sprite, building.x+8*j, 120-(8*i))
@@ -146,14 +156,15 @@ function _draw()
     --update_camera()
 
     --draw player
-    spr(p.sprite, p.x, p.y, 1, 1, p.flipx, p.flipy)
+    if (p.dying==0) then
+      spr(p.sprite, p.x, p.y, 1, 1, p.flipx, p.flipy)
+    end
 
-    --update_map()
-    foreach(bullets, function(obj)
-      obj.draw(obj)
-    end)
-    foreach(enemies, function(obj)
-      obj.draw(obj)
+    update_map()
+    foreach({bullets,enemies,supply,balloon,explosions}, function(grp)
+      foreach(grp, function(obj)
+        obj.draw(obj)
+      end)
     end)
 
     --status bar
@@ -170,5 +181,10 @@ function _draw()
       print("game  over",44,24,1)
       print("🅾️ restart",44,43,7)
 
+      foreach({supply,balloon,explosions}, function(grp)
+        foreach(grp, function(obj)
+          obj.draw(obj)
+        end)
+      end)
   end
 end

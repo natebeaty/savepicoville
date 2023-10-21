@@ -1,10 +1,12 @@
 --player functions
 
+---------------
+-- new player!
 function make_player()
   p={}
-  p.x=4 --player position
+  p.x=4
   p.y=112
-  p.dx=0 --player movement
+  p.dx=0
   p.dy=0
   p.box={x1=0,y1=0,x2=7,y2=7}  --collision box
   p.life="♥♥♥"
@@ -26,12 +28,17 @@ function make_player()
   --friction (1=none, 0=instant)
   p.drg=0.1
 
+  p.resupply=function()
+    p.fuel=999
+  end
+
   p.die=function()
     sfx(01)
     p.life=sub(p.life,0,#p.life-1)
     if (p.life=="") then
       game_over()
     else
+      new_explosion(p.x,p.y)
       p.dying=10
       p.dx=0
       p.dy=0
@@ -40,15 +47,17 @@ function make_player()
 
   p.respawn=function()
     p.last_flipx=true
+    p.fuel=999
     p.x=4
     p.y=112
   end
 end
 
+---------------
+-- move player
 function move_player()
   if (p.dying>0) then
     p.dying-=1
-    if t%3==0 then p.sprite=32 else p.sprite=33 end
     if p.dying==0 then
       p.respawn()
     end

@@ -22,9 +22,16 @@ function new_bullet(x,y,dx,dy)
         del(bullets, this)
       end
     end)
+    -- check for collisions with supply
+    foreach(supply, function(obj)
+      if (obj.dying==0 and coll(this,obj)) then
+        obj.die(obj)
+        del(bullets, this)
+      end
+    end)
 
     -- check for collisions with building
-    check_building_hit(this)
+    check_building_hit(this,bullets)
 
     --move the bullet
     this.x += obj.dx
@@ -40,25 +47,29 @@ function new_bullet(x,y,dx,dy)
   return obj
 end
 
-function check_building_hit(obj)
+function check_building_hit(obj,grp)
   local nx_l=obj.x+obj.dx+obj.box.x1
   local nx_r=obj.x+obj.dx+obj.box.x2
   local ny_t=obj.y+obj.dy+obj.box.y1
   local ny_b=obj.y+obj.dy+obj.box.y2
-  chk_bldg(nx_l,ny_t,obj)
-  chk_bldg(nx_l,ny_b,obj)
-  chk_bldg(nx_r,ny_t,obj)
-  chk_bldg(nx_r,ny_b,obj)
+  local foo = chk_bldg(nx_l,ny_t,obj,grp) or
+    chk_bldg(nx_l,ny_b,obj,grp) or
+    chk_bldg(nx_r,ny_t,obj,grp) or
+    chk_bldg(nx_r,ny_b,obj,grp)
 end
-function chk_bldg(x,y,o)
+function chk_bldg(x,y,obj,grp)
   local map_x=flr(x/8)
   local map_y=flr(y/8)
   local map_sprite=mget(map_x,map_y)
   if (fget(map_sprite,1) and not fget(map_sprite,2)) then
-    del(bullets, o)
-    mset(map_x,map_y,8)
+    del(grp,obj)
+    sfx(1)
+    new_explosion(map_x*8,map_y*8)
+    mset(map_x,map_y,6+flr(rnd(2)))
     fset(map_x,map_y,2,true)
+    return true
   end
+  return false
 end
 
 function player_fire()
