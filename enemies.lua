@@ -1,4 +1,4 @@
--- enemies
+-- enemies functions
 
 -- spawn enemies in update function
 function check_enemy_spawn(max)
