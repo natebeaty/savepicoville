@@ -11,7 +11,7 @@ function new_explosion(x,y)
   obj.update=function(this)
     this.t-=1
     if t%3==0 then this.sprite=32 else this.sprite=33 end
-    if this.t==0 then del(explosions, this) end
+    if (this.t==0) del(explosions, this)
   end
   obj.draw=function(this)
     spr(this.sprite,this.x,this.y)
@@ -26,14 +26,14 @@ function new_enemy(x,y)
 
   obj.update=function(this)
     -- hitting player?
-    if (p.dying==0 and coll(this,p)) then
+    if p.dying==0 and coll(this,p) then
       p.die()
       this.die(this)
     end
 
     -- hitting supply?
     foreach(supply, function(obj)
-      if (coll(this,obj)) then
+      if coll(this,obj) then
         obj.die(obj)
         this.die(this)
       end
