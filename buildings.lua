@@ -11,12 +11,14 @@ function make_buildings()
 
   -- generate random buildings
   buildings={}
+  lastx=1
   for i=0,3 do
     building={
       rows={},
       width=flr(rnd(2))+2,
-      x=3+(i*3+flr(rnd(2)))
+      x=lastx
     }
+    lastx=lastx+building.width+(flr(rnd(3)))
     for n=1,flr(rnd(5)+3) do
       row={}
       for x=1,building.width do
