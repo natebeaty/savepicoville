@@ -13,7 +13,7 @@ end
 function new_balloon(supply)
   supply.has_deployed=true
   local obj = {x=supply.x, y=supply.y, dx=supply.dx, dy=1, sprite=37, t=0}
-  obj.box = {x1=0,y1=3,x2=7,y2=7}
+  obj.box = {x1=0,y1=3,x2=8,y2=8}
   sfx(09)
 
   obj.update=function(this)
