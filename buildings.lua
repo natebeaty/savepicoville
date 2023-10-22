@@ -92,3 +92,23 @@ function check_building_collapse()
     end
   end
 end
+
+function new_rumblingrow(x,y,delay)
+  local obj={x=x,y=y,delay=delay,t=0}
+  obj.update=function(this)
+    this.t+=1
+    if (this.t > this.delay+15) del(rumblingrows, this)
+  end
+  obj.draw=function(this)
+    local sprite=24
+    if (this.t > this.delay+10) then
+      if this.t%2==0 then sprite=28 else sprite=29 end
+    elseif (this.t > this.delay+5) then
+      if this.t%2==0 then sprite=26 else sprite=27 end
+    else
+      if this.t%2==0 then sprite=24 else sprite=25 end
+    end
+    spr(sprite,this.x,this.y)
+  end
+  return obj
+end

@@ -4,6 +4,7 @@ function _init()
   mode="title"
   explosions={}
   buildingcrash={}
+  rumblingrows={}
   bullets={}
   enemies={}
   supply={}
@@ -49,13 +50,21 @@ function _update()
   if #buildingcrash>0 then
     for obj in all(buildingcrash) do
       for i=1,obj.rowbusted do
+        sfx(11)
         for j=1,obj.building.width do
-          mset(obj.building.x+j, 14-#obj.building.rows+i, 8)
+          local mx=obj.building.x+j
+          local my=14-#obj.building.rows+i
+          mset(mx, my, 8)
+          add(rumblingrows, new_rumblingrow(mx*8,my*8,i*10))
         end
       end
     end
     buildingcrash={}
   end
+  for obj in all(enemies) do
+    obj.update(obj)
+  end
+
 
   if mode=="title" then
 
@@ -81,7 +90,7 @@ function _update()
     check_enemy_spawn(2)
     check_supply_spawn()
     update_map()
-    for grp in all({bullets,enemies,supply,balloon,explosions}) do
+    for grp in all({bullets,enemies,supply,balloon,explosions,rumblingrows}) do
       for obj in all(grp) do
         obj.update(obj)
       end
@@ -89,7 +98,7 @@ function _update()
 
   elseif mode=="game over" then
 
-    for grp in all({supply,balloon,explosions}) do
+    for grp in all({supply,balloon,explosions,rumblingrows}) do
       for obj in all(grp) do
         obj.update(obj)
       end
@@ -131,7 +140,7 @@ function _draw()
     end
 
     update_map()
-    for grp in all({bullets,enemies,supply,balloon,explosions}) do
+    for grp in all({bullets,enemies,supply,balloon,explosions,rumblingrows}) do
       for obj in all(grp) do
         obj.draw(obj)
       end

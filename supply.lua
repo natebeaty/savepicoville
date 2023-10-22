@@ -54,7 +54,7 @@ function new_balloon(supply)
     sfx(02)
     sfx(03)
     new_explosion(this.x,this.y)
-    del(balloons, this)
+    del(balloon, this)
   end
 
   --return the supply

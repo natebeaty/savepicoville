@@ -21,7 +21,7 @@ end
 
 -- construct new enemy
 function new_enemy(x,y)
-  local obj={x=x, y=y, dx=0, dy=0.5, sprite=16, t=0, dying=0}
+  local obj={x=x, y=y, dx=0, dy=0.5, sprite=16, t=0}
   obj.box={x1=0,y1=3,x2=7,y2=7}
 
   obj.update=function(this)
