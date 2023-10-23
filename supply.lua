@@ -70,7 +70,7 @@ function new_supply()
     obj.x=128
     obj.dx=-1
   end
-  obj.box = {x1=0,y1=3,x2=7,y2=7}
+  obj.box = {x1=0,y1=2,x2=9,y2=9}
 
   obj.update = function(this)
     this.t+=1
