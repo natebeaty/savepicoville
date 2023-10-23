@@ -14,22 +14,18 @@ function make_player()
   p.score=0
   p.dying=0
 
-  p.last_flipx=true
-  p.flipx=false --flip sprite horizontal
-  p.flipy=false --flip sprite vertical
-  p.sprite_neutral=18 --player sprite, neutral
-  p.sprite=p.sprite_neutral --current player sprite
+  p.flipx=false --flip horizontal
+  p.flipy=false --flip vertical
+  p.sprite=18
 
-  p.maxspd=4 --max speed
+  p.maxspd=2.5 --max speed
   p.minspd=1 --min speed
-
-  p.a=.8 --acceleration
-
-  --friction (1=none, 0=instant)
-  p.drg=0.1
+  p.a=0.25 --acceleration
+  p.drg=0.95 --friction (1=none, 0=instant)
 
   p.resupply=function()
-    p.fuel=999
+    p.fuel+=400
+    if (p.fuel>999) p.fuel=999
   end
 
   p.die=function()
@@ -46,105 +42,147 @@ function make_player()
   end
 
   p.respawn=function()
-    p.last_flipx=true
     p.fuel=999
     p.x=4
     p.y=112
   end
-end
 
----------------
--- move player
-function move_player()
-  if (p.dying>0) then
-    p.dying-=1
-    if p.dying==0 then
-      p.respawn()
+  p.draw=function()
+    if (p.dying==0) then
+      spr(p.sprite, p.x, p.y, 1, 1, p.flipx, p.flipy)
     end
-  else
+    -- print(p.dx..","..p.dy,40,20,5)
+  end
 
-    -- check for button presses to get sprite, flip, and direction
-    if (btn(0)) then
-      p.last_flipx=false
-      p.flipx=false
-      if p.dx<0 then p.dx-=p.a else p.dx=-p.minspd end
-      if (not btn(2) and not btn(3)) then
-        p.dy=0
-        p.sprite=19
-        p.flipy=false
-      else
+  -- player update
+  p.update=function()
+    if (p.dying>0) then
+
+      p.dying-=1
+      if p.dying==0 then
+        p.respawn()
+      end
+
+    else
+
+      -- fuel check
+      if (t%2==0) then
+        -- moving? reduce fuel
+        if (p.dy~=0 or p.dx~=0) then p.fuel-=(abs(p.dx)+abs(p.dy)) else p.fuel-=0.5 end
+        if (p.fuel==0) p.die()
+      end
+
+      -- check for button presses to get sprite, flip, and direction
+      -- left
+      if btn(0) then
         p.flipx=true
-        if (p.dy<0) then p.sprite=20 else p.sprite=21 end
+        p.dx-=p.a
+        if (p.dx>0 and p.dx<p.minspd) p.dx=-0.1
+        if (not btn(2) and not btn(3)) then
+          p.dy=0
+          p.sprite=19
+          p.flipy=false
+        else
+          p.flipx=true
+          if (p.dy<0) then p.sprite=20 else p.sprite=21 end
+        end
       end
-    end
-    if (btn(1)) then
-      p.last_flipx=true
-      p.flipx=true
-      if p.dx>0 then p.dx+=p.a else p.dx=p.minspd end
-      if (not btn(2) and not btn(3)) then
-        p.dy=0
-        p.sprite=19
-        p.flipy=false
-      else
+      -- right
+      if btn(1) then
         p.flipx=false
-        if (p.dy<0) then p.sprite=20 else p.sprite=21 end
+        p.dx+=p.a
+        if (p.dx<0 and abs(p.dx)<p.minspd) p.dx=0.1
+        if not btn(2) and not btn(3) then
+          p.dy=0
+          p.sprite=19
+          p.flipy=false
+        else
+          p.flipx=false
+          if (p.dy<0) then p.sprite=20 else p.sprite=21 end
+        end
       end
-    end
-    if (btn(2)) then
-      p.flipy=false
-      if p.dy<0 then p.dy-=p.a else p.dy=-p.minspd end
-      if (not btn(0) and not btn(1)) then
-        p.dx=0
-        p.sprite=18
-        p.flipx=false
-      else
-        p.sprite=20
-        if (p.dx<0) then p.flipx=true else p.flipx=false end
-      end
-    end
-    if (btn(3)) then
-      p.flipy=true
-      if p.dy>0 then p.dy+=p.a else p.dy=p.minspd end
-      if (not btn(0) and not btn(1)) then
-        p.dx=0
-        p.sprite=18
-        p.flipx=true
-      else
+      -- up
+      if btn(2) then
         p.flipy=false
-        p.sprite=21
+        p.dy-=p.a
+        if (p.dy>0 and p.dy<p.minspd) p.dy=-0.1
+        if not btn(0) and not btn(1) then
+          p.dx=0
+          p.sprite=18
+          p.flipx=false
+        else
+          p.sprite=20
+          if (p.dx<0) then p.flipx=true else p.flipx=false end
+        end
       end
-    end
+      -- down
+      if btn(3) then
+        p.flipy=true
+        p.dy+=p.a
+        if (p.dy<0 and p.dy>-p.minspd) p.dy=0.1
+        if not btn(0) and not btn(1) then
+          p.dx=0
+          p.sprite=18
+          p.flipx=true
+        else
+          p.flipy=false
+          p.sprite=21
+        end
+      end
+      -- fire
+      if btnp(4, 0) then
+        if (abs(p.dx)~=0 or abs(p.dy)~=0) then
+          sfx(00)
+          local dx=p.dx
+          local dy=p.dy
+          -- support for quick turn and shoots when direction doesn't match flipx/flipy
+          if p.dy==0 and ((p.flipx and p.dx>0) or (not p.flipx and p.dx<0)) then dx=p.dx*-1 end
+          if p.dx==0 and ((p.flipy and p.dy<0) or (not p.flipy and p.dy>0)) then dy=p.dy*-1 end
+          add(bullets, new_bullet(p.x+3, p.y+4, dx, dy))
+        end
+      end
 
-    --limit to max speed
-    p.dx=mid(-p.maxspd, p.dx, p.maxspd)
-    p.dy=mid(-p.maxspd, p.dy, p.maxspd)
+      --limit to max speed
+      p.dx=mid(-p.maxspd, p.dx, p.maxspd)
+      p.dy=mid(-p.maxspd, p.dy, p.maxspd)
 
-    --check if next to wall
-    wall_check(p)
+      --check if next to wall
+      wall_check(p)
 
-    --can move?
-    if (can_move(p,p.dx,p.dy)) then
-      p.x+=p.dx
-      p.y+=p.dy
-    end
+      --can move?
+      if (can_move(p,p.dx,p.dy)) then
+        p.x+=p.dx
+        p.y+=p.dy
 
-    --add drag
-    if (abs(p.dx)>0) p.dx*=p.drg
-    if (abs(p.dy)>0) p.dy*=p.drg
+        -- if no buttons pushed, ensure sprite is facing direction
+        if not btn(0) and not btn(1) and not btn(2) and not btn(3) then
+          p.sprite=19
+          p.flipx=false
+          p.flipy=false
+          --up=sprite18 --down=sprite18,flipy
+          if p.dx==0 and p.dy<0 then p.sprite=18 end
+          if p.dx==0 and p.dy>0 then p.sprite=18 p.flipy=true end
+          --right=sprite19 --left=sprite19,flipx
+          if p.dx<0 and p.dy==0 then p.flipx=true end
+          --upright=sprite20 --upleft=sprite20,flipx
+          if p.dx>0 and p.dy<0 then p.sprite=20 end
+          if p.dx<0 and p.dy<0 then p.sprite=20 p.flipx=true end
+          --downright=sprite21 --downleft=sprite21,flipx
+          if p.dx>0 and p.dy>0 then p.sprite=21 end
+          if p.dx<0 and p.dy>0 then p.sprite=21 p.flipx=true end
+        end
 
-    --make sure they don't drop below min speed
-    if (abs(p.dx)!=0 and abs(p.dx)<p.minspd) then
-      if (p.dx<0) then p.dx=-p.minspd else p.dx=p.minspd end
-    end
-    if (abs(p.dy)!=0 and abs(p.dy)<p.minspd) then
-      if (p.dy<0) then p.dy=-p.minspd else p.dy=p.minspd end
-    end
+      end
 
-    --neutral state if not moving
-    if (p.dx==0 and p.dy==0) then
-      p.sprite=p.sprite_neutral
-      p.flipy=false
-      p.flipx=p.last_flipx
+      --add drag
+      if (abs(p.dx)>0) p.dx*=p.drg
+      if (abs(p.dy)>0) p.dy*=p.drg
+
+      --make sure they don't drop below min speed
+      p.dx=minspeed(p.dx,p.minspd)
+      p.dy=minspeed(p.dy,p.minspd)
+
     end
   end
+
 end
