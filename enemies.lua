@@ -21,8 +21,8 @@ end
 
 -- construct new enemy
 function new_enemy(x,y)
-  local obj={x=x, y=y, dx=0, dy=0.5, sprite=16, t=0}
-  obj.box={x1=0,y1=3,x2=7,y2=7}
+  local obj={x=x, y=y, dx=0, dy=0.5, sprite=16, t=0, drg=0.9}
+  obj.box={x1=0,y1=2,x2=8,y2=8}
 
   obj.update=function(this)
     -- hitting player?
@@ -39,15 +39,18 @@ function new_enemy(x,y)
       end
     end)
 
-    if t%5==0 then this.sprite=16 else this.sprite=17 end
+    if t%4==0 then this.sprite=16 else this.sprite=17 end
 
     --herky jerk
-    if (rnd(100) > 97) this.dx = (rnd(5) - 2.5)/2
-    if (rnd(100) > 98) this.dy = (rnd(3) - 1)/2
+    if (rnd() > 0.97) this.dx = (rnd(4) - 2.5)/3.5
+    if (rnd() > 0.98) this.dy = (rnd(2) - 1)/3.5
 
     --move it
     this.x += this.dx
     this.y += this.dy
+
+    -- if (abs(this.dx)>0) this.dx*=this.drg
+    -- if (abs(this.dy)>0) this.dy*=this.drg
 
     -- bounce from top
     if (this.y < -10) then
