@@ -149,6 +149,8 @@ function make_player()
       --check if next to wall
       wall_check(p)
 
+      check_building_hit(p, "player")
+
       --can move?
       if (can_move(p,p.dx,p.dy)) then
         p.x+=p.dx

@@ -65,7 +65,8 @@ function is_undamaged_building(x,y,obj,grp)
   local map_sprite=mget(map_x,map_y)
   if fget(map_sprite,1) and not fget(map_sprite,2) then
     -- remove object hitting building
-    del(grp,obj)
+    if grp=="player" then p.die()
+    else del(grp,obj) end
     sfx(1)
     new_explosion(map_x*8,map_y*8)
     -- set random building damaged sprite
