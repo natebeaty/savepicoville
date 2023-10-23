@@ -55,7 +55,7 @@ end
 --against the map to see if it
 --can be walked on or not
 function solid(x,y)
-  if (x<0) return true
+  if x<0 or x>128 or y<9 then return true end
 
  --pixel coords -> map coords
  local map_x=flr(x/8)
