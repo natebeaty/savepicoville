@@ -1,5 +1,23 @@
 -- buildings
 
+function building_update(chk)
+  if t%chk==0 then
+    -- blink undamaged building lights
+    for i=1,#buildings do
+      for h=1,buildings[i].height do
+        for w=1,buildings[i].width do
+          local map_x=buildings[i].x+w
+          local map_y=14-buildings[i].height+h
+          local map_sprite=mget(map_x,map_y)
+          if (chk==1 or rnd()>0.98) and fget(map_sprite,1) and not fget(map_sprite,2) then
+            mset(map_x, map_y, flr(rnd(5))+1)
+          end
+        end
+      end
+    end
+  end
+end
+
 -- create randomized buildings
 function make_buildings()
   -- reset to blue
@@ -14,32 +32,17 @@ function make_buildings()
   lastx=1
   for i=0,3 do
     building={
-      rows={},
+      height=flr(rnd(5)+3),
       width=flr(rnd(2))+2,
       x=lastx
     }
     lastx=lastx+building.width+(flr(rnd(3)))
-    for n=1,flr(rnd(5)+3) do
-      row={}
+    for n=1,building.height do
       for x=1,building.width do
-        add(row, {
-          sprite=flr(rnd(5))+1,
-          dmg=0
-        })
+        mset(building.x+x, 15-n, flr(rnd(5))+1)
       end
-      add(building.rows, row)
     end
     add(buildings, building)
-  end
-  -- write buildings to map
-  for building in all(buildings) do
-    local i=0
-    for row in all(building.rows) do
-      i+=1
-      for j=1,building.width do
-        mset(building.x+j, 14-#building.rows+i, row[j].sprite)
-      end
-    end
   end
 end
 
@@ -77,12 +80,10 @@ end
 -- check for any building rows with all damage
 function check_building_collapse()
   for building in all(buildings) do
-    local i=0
-    for row in all(building.rows) do
-      i+=1
+    for i=1,building.height do
       rowbusted=true
       for j=1,building.width do
-        local map_sprite=mget(building.x+j,14-#building.rows+i)
+        local map_sprite=mget(building.x+j,14-building.height+i)
         -- any undamaged pieces? row is not busted
         if not fget(map_sprite,2) then
           rowbusted=false
@@ -104,11 +105,11 @@ function new_rumblingrow(x,y,delay)
   obj.draw=function(this)
     local sprite=24
     if (this.t > this.delay+10) then
-      if this.t%2==0 then sprite=28 else sprite=29 end
+      if this.t%3==0 then sprite=28 else sprite=29 end
     elseif (this.t > this.delay+5) then
-      if this.t%2==0 then sprite=26 else sprite=27 end
+      if this.t%3==0 then sprite=26 else sprite=27 end
     else
-      if this.t%2==0 then sprite=24 else sprite=25 end
+      if this.t%3==0 then sprite=24 else sprite=25 end
     end
     spr(sprite,this.x,this.y)
   end
