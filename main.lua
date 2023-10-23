@@ -1,5 +1,13 @@
 --save chicago!
 
+-- ensure min speeds, pos or neg
+function minspeed(spd,minspd)
+  if (abs(spd)!=0 and abs(spd)<minspd) then
+    if spd<0 then spd=-minspd else spd=minspd end
+  end
+  return spd
+end
+
 function _init()
   mode="title"
   explosions={}
@@ -53,7 +61,7 @@ function _update()
         sfx(11)
         for j=1,obj.building.width do
           local mx=obj.building.x+j
-          local my=14-#obj.building.rows+i
+          local my=14-obj.building.height+i
           mset(mx, my, 8)
           add(rumblingrows, new_rumblingrow(mx*8,my*8,i*10))
         end
@@ -68,6 +76,7 @@ function _update()
 
   if mode=="title" then
 
+    building_update(4)
     check_enemy_spawn(5)
     for obj in all(enemies) do
       obj.update(obj)
@@ -79,14 +88,8 @@ function _update()
 
   elseif mode=="game" then
 
-    if (p.dying==0 and t%2==0) then
-      -- moving? reduce fuel
-      if (p.dy!=0 or p.dx!=0) p.fuel-=1
-      if (p.fuel==0) p.die()
-    end
-
-    move_player()
-    player_fire()
+    p.update()
+    building_update(3)
     check_enemy_spawn(2)
     check_supply_spawn()
     update_map()
@@ -98,6 +101,7 @@ function _update()
 
   elseif mode=="game over" then
 
+    building_update(1)
     for grp in all({supply,balloon,explosions,rumblingrows}) do
       for obj in all(grp) do
         obj.update(obj)
@@ -134,21 +138,17 @@ function _draw()
 
     --update_camera()
 
-    --draw player
-    if (p.dying==0) then
-      spr(p.sprite, p.x, p.y, 1, 1, p.flipx, p.flipy)
-    end
-
     update_map()
     for grp in all({bullets,enemies,supply,balloon,explosions,rumblingrows}) do
       for obj in all(grp) do
         obj.draw(obj)
       end
     end
+    p.draw()
 
     --status bar
     rectfill(0,0,128,8,14)
-    print("fuel:"..p.fuel, 4, 2, 1)
+    print("fuel:"..flr(p.fuel), 4, 2, 1)
     print("score:"..p.score, 50, 2, 1)
     print(p.life, 100, 2, 1)
 
