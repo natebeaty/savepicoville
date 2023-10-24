@@ -14,6 +14,11 @@ function pad(string,length)
   return "0"..pad(string,length-1)
 end
 
+function is_offstage(obj,offset)
+  offset=offset or 0
+  return obj.x<0-offset or obj.x>128+offset or obj.x<0-offset or obj.y>128+offset
+end
+
 function _init()
   t=0
   level=1

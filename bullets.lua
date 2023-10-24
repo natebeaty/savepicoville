@@ -36,6 +36,9 @@ function new_bullet(x,y,dx,dy)
     --move the bullet
     this.x += obj.dx
     this.y += obj.dy
+
+    -- offstage?
+    if (is_offstage(this, 20)) del(bullets, this)
   end
 
   -- draw loop
