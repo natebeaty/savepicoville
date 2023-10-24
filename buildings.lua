@@ -1,5 +1,6 @@
 -- buildings
 
+-- blink lights
 function building_blink(chk)
   if t%chk==0 then
     -- blink undamaged building lights
@@ -36,7 +37,7 @@ function make_buildings()
   lastx=1
   for i=1,4 do
     building={
-      height=flr(rnd(5)+3),
+      height=flr(rnd(6)+3),
       width=flr(rnd(2))+2,
       x=lastx
     }
@@ -68,7 +69,9 @@ function is_undamaged_brick(x,y,obj,grp)
   local map_x=flr(x/8)
   local map_y=flr(y/8)
   local map_sprite=mget(map_x,map_y)
-  if fget(map_sprite,1) and not fget(map_sprite,2) then
+  local chk=fget(map_sprite,1) and not fget(map_sprite,2)
+  if grp=="player" then chk=fget(map_sprite,1) end
+  if chk then
     -- remove object hitting building
     if grp=="player" then p.die()
     else del(grp,obj) end
@@ -118,6 +121,10 @@ function new_rumblingrow(x,y,delay)
       if this.t%3==0 then sprite=26 else sprite=27 end
     else
       if this.t%3==0 then sprite=24 else sprite=25 end
+    end
+    for i=1,2 do
+      pset(this.x+rnd(10)-1,this.y+rnd(10)-1,1)
+      pset(this.x+rnd(10)-1,this.y+rnd(10)-1,10)
     end
     spr(sprite,this.x,this.y)
   end
