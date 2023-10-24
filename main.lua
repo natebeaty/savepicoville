@@ -23,7 +23,8 @@ function _init()
   t=0
   level=1
   hiscore=0
-  enemies_killed=0
+  enemieskilled=0
+  enemyspeed=1
   mode="title"
   explosions={}
   buildingcrash={}
@@ -60,13 +61,14 @@ function status_bar()
 end
 
 function check_level()
-  if (enemies_killed>=5 and level==1 or enemies_killed>=10) then
-    enemies_killed=0
+  if (enemieskilled>=5 and level==1 or enemieskilled>=10) then
+    enemieskilled=0
     enemies={}
     supply={}
     balloon={}
     bullets={}
     t=0
+    enemyspeed=level
     mode="bonus"
     -- set min/max starting points for bonuscheck
     for building in all(buildings) do
@@ -86,6 +88,7 @@ end
 function restart()
   t=0
   p.score=0
+  p.enemieskilled=0
   p.life="♥♥♥"
   mode="title"
   make_buildings()
@@ -125,21 +128,20 @@ function _update()
     -- tally bonus points
     if (bonuscheck.y<16) then
       local map_sprite=mget(bonuscheck.x,bonuscheck.y)
-      -- skip sky until brick
-      while map_sprite==9 and bonuscheck.y<16 do
+      -- skip tiles until brick
+      while map_sprite>5 and bonuscheck.y<16 do
         bonuscheck.x-=1
         if bonuscheck.x<0 then
           bonuscheck.y+=1
           bonuscheck.x=15
         end
+        map_sprite=mget(bonuscheck.x,bonuscheck.y)
       end
       -- unbroken brick
-      if fget(map_sprite,1) and not fget(map_sprite,2) then
-        p.score+=1
-        bonuslastbrick={x=bonuscheck.x,y=bonuscheck.y}
-        sfx(12)
-        mset(bonuscheck.x,bonuscheck.y,map_sprite+48) --white flash
-      end
+      p.score+=1
+      bonuslastbrick={x=bonuscheck.x,y=bonuscheck.y}
+      sfx(12)
+      mset(bonuscheck.x,bonuscheck.y,map_sprite+48) --white flash
       bonuscheck.x-=1
       if bonuscheck.x<0 then
         bonuscheck.y+=1

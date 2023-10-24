@@ -7,24 +7,37 @@ end
 
 -- new explosion
 function new_explosion(x,y)
-  local obj={x=x,y=y,t=10,sprite=32}
+  local obj={x=x,y=y,t=10,sprite=32,debris={}}
+  for i=1,5 do
+    add(obj.debris,{x=x,y=y,dx=rnd(4)-2,dy=rnd(4)-2})
+  end
+
   obj.update=function(this)
     this.t-=1
     if t%3==0 then this.sprite=32 else this.sprite=33 end
+    for d in all(this.debris) do
+      d.x+=d.dx
+      d.y+=d.dy
+    end
     if (this.t==0) del(explosions,this)
   end
   obj.draw=function(this)
-    spr(this.sprite,this.x,this.y)
+    if (obj.t>8) spr(this.sprite,this.x,this.y)
+    for d in all(this.debris) do
+      pset(d.x,d.y,rnd(16))
+    end
   end
   add(explosions,obj)
 end
 
 -- construct new enemy
 function new_enemy(x,y)
-  local obj={x=x,y=y,dx=0,dy=0.5,sprite=16,t=0,drg=0.9}
+  local obj={x=x,y=y,dx=0,dy=0.5,sprite=16,t=0}
   obj.box={x1=0,y1=2,x2=8,y2=8}
 
   obj.update=function(this)
+    this.t+=1
+
     -- hitting player?
     if p.dying==0 and coll(this,p) then
       p.die()
@@ -42,20 +55,22 @@ function new_enemy(x,y)
     if t%4==0 then this.sprite=16 else this.sprite=17 end
 
     --herky jerk
-    if (rnd()>0.985) this.dx = (rnd(4)-2.5)/3.5
-    if (rnd()>0.985) this.dy = (rnd(2)-1)/3.5
+    if this.t%3 and rnd()>0.95 then
+      this.dx = (rnd(3)-1)*enemyspeed*0.25
+      this.dy = (rnd(3)-1)*enemyspeed*0.25
+    end
 
     --move it
     this.x += this.dx
     this.y += this.dy
 
-    -- if (abs(this.dx)>0) this.dx*=this.drg
-    -- if (abs(this.dy)>0) this.dy*=this.drg
-
-    -- bounce from top
-    if (this.y < -10) then
-      this.dy = 1
-      this.y = -10
+    -- bounce from vertical edge
+    if (this.y<-1 or this.y>110) then
+      this.dy=-this.dy
+    end
+    -- delete if offstage horizontally
+    if (this.x<-10 or this.x>138) then
+      del(enemies,this)
     end
 
     -- offscreen?

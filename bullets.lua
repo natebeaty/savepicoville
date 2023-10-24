@@ -14,7 +14,7 @@ function new_bullet(x,y,dx,dy)
     for obj in all(enemies) do
       if (coll(this,obj)) then
         p.score+=2
-        enemies_killed+=1
+        enemieskilled+=1
         obj.die(obj)
         del(bullets,this)
         check_level()
