@@ -8,12 +8,15 @@ function make_player()
   p.y=121
   p.dx=0
   p.dy=0
-  p.box={x1=0,y1=0,x2=7,y2=7}  --collision box
   p.life="♥♥♥"
   p.fuel=999
+  p.lowfuel=300
   p.score=0
   p.dying=0
   p.mode="man"
+  p.boxman={x1=2,y1=1,x2=5,y2=6} --collision box
+  p.boxplane={x1=0,y1=0,x2=7,y2=7}
+  p.box=p.boxman
 
   p.flipx=false --flip horizontal
   p.flipy=false --flip vertical
@@ -77,16 +80,22 @@ function make_player()
 
       if p.mode=="man" and p.y<120 then
         p.mode="plane"
-        p.y=110
         p.x=4
+        p.y=110
         p.dy=-1
+        p.box=p.boxplane
         sfx(10)
       elseif p.mode=="plane" and p.y>112 then
-        p.mode="man"
-        p.x=4
-        p.y=121
-        p.dy=0
-        sfx(10)
+        if p.x>16 then
+          p.die()
+        else
+          p.mode="man"
+          p.x=4
+          p.y=121
+          p.dy=0
+          p.box=p.boxman
+          sfx(10)
+        end
       end
 
       if p.mode=="man" then
@@ -105,6 +114,9 @@ function make_player()
         else
           if (p.dy~=0 or p.dx~=0) then p.fuel-=(abs(p.dx)+abs(p.dy)) else p.fuel-=0.5 end
         end
+        -- low fuel klaxon
+        if (p.fuel<p.lowfuel and t%40==0) sfx(13)
+        p.fuel=max(p.fuel,0)
         if (p.fuel==0) p.die()
       end
 
