@@ -2,17 +2,17 @@
 
 -- spawn supply in update function
 function check_supply_spawn()
-  if (#supply<1 and #balloon<1 and rnd(100) > 98) add(supply, new_supply())
+  if (#supply<1 and #balloon<1 and t%3==0 and rnd()>0.98) add(supply,new_supply())
 end
 function check_balloon_spawn(obj)
-  if (not obj.has_deployed and rnd(100) > 97) add(balloon, new_balloon(obj))
+  if (not obj.has_deployed and rnd()>0.97) add(balloon,new_balloon(obj))
 end
 
 ---------------
 -- new balloon!
 function new_balloon(supply)
   supply.has_deployed=true
-  local obj = {x=supply.x, y=supply.y, dx=supply.dx, dy=1, sprite=37, t=0}
+  local obj = {x=supply.x,y=supply.y,dx=supply.dx,dy=1,sprite=37,t=0}
   obj.box = {x1=0,y1=3,x2=8,y2=8}
   sfx(09)
 
@@ -35,18 +35,18 @@ function new_balloon(supply)
     end
 
     -- check for collisions with building
-    check_building_hit(this, balloon)
+    check_building_hit(this,balloon)
 
     --move it
     this.x += this.dx
     this.y += this.dy
 
     -- offscreen?
-    if (this.x < -10 or this.x > 138 or this.y > 138) del(balloon, this)
+    if (this.x<-10 or this.x>138 or this.y>138) del(balloon,this)
   end
 
   obj.draw=function(this)
-    spr(this.sprite, this.x, this.y)
+    spr(this.sprite,this.x,this.y)
   end
 
   --bye bye
@@ -54,7 +54,7 @@ function new_balloon(supply)
     sfx(02)
     sfx(03)
     new_explosion(this.x,this.y)
-    del(balloon, this)
+    del(balloon,this)
   end
 
   --return the supply
@@ -64,7 +64,7 @@ end
 ---------------
 -- new supply!
 function new_supply()
-  local obj = {x=0, y=15, dx=1, dy=0, sprite=35, flipx=false, t=0, has_deployed=false}
+  local obj = {x=0,y=15,dx=1,dy=0,sprite=35,flipx=false,t=0,has_deployed=false}
   -- which side of screen to spawn from?
   if rnd(1)>0.5 then
     obj.x=128
@@ -93,14 +93,14 @@ function new_supply()
     -- emit balloon?
     -- check position across screen
     if this.dx<1 then screen_pos=this.x/128 else screen_pos = (128-this.x)/128 end
-    if (screen_pos > .2 and screen_pos < .8) check_balloon_spawn(this)
+    if (screen_pos>0.2 and screen_pos<0.8) check_balloon_spawn(this)
 
     -- offscreen?
-    if (this.x < -10 or this.x > 138) del(supply, this)
+    if (this.x<-10 or this.x>138) del(supply,this)
   end
 
   obj.draw = function(this)
-    spr(this.sprite, this.x, this.y, 1, 1, this.flipx)
+    spr(this.sprite,this.x,this.y,1,1,this.flipx)
   end
 
   --bye bye
@@ -108,7 +108,7 @@ function new_supply()
     sfx(02)
     sfx(03)
     new_explosion(this.x,this.y)
-    del(supply, this)
+    del(supply,this)
   end
 
   --return the supply
