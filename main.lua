@@ -162,7 +162,7 @@ function _update()
 
     p.update()
     building_blink(3)
-    check_enemy_spawn(level)
+    check_enemy_spawn(level+1)
     check_supply_spawn()
     for grp in all({bullets,enemies,supply,balloon,explosions,rumblingrows}) do
       for obj in all(grp) do
