@@ -5,7 +5,7 @@
 function make_player()
   p={}
   p.x=4
-  p.y=112
+  p.y=121
   p.dx=0
   p.dy=0
   p.box={x1=0,y1=0,x2=7,y2=7}  --collision box
@@ -13,15 +13,16 @@ function make_player()
   p.fuel=999
   p.score=0
   p.dying=0
+  p.mode="man"
 
   p.flipx=false --flip horizontal
   p.flipy=false --flip vertical
-  p.sprite=18
+  p.sprite=0
 
-  p.maxspd=2.5 --max speed
+  p.maxspd=1 --max speed
   p.minspd=1 --min speed
   p.a=0.25 --acceleration
-  p.drg=0.95 --friction (1=none, 0=instant)
+  p.drg=0.95 --friction (1=none,0=instant)
 
   p.resupply=function()
     p.fuel+=400
@@ -43,14 +44,23 @@ function make_player()
 
   p.respawn=function()
     p.fuel=999
+    p.mode="man"
     p.x=4
-    p.y=112
+    p.y=121
+    p.dx=0
+    p.dy=0
   end
 
   p.draw=function()
-    if (p.dying==0) then
-      spr(p.sprite, p.x, p.y, 1, 1, p.flipx, p.flipy)
+    if p.dying==0 then
+      if p.mode=="man" then
+        spr(0,p.x,p.y)
+        spr(18,4,112)
+      else
+        spr(p.sprite,p.x,p.y,1,1,p.flipx,p.flipy)
+      end
     end
+    -- print(p.x..","..p.y,40,10,5)
     -- print(p.dx..","..p.dy,40,20,5)
   end
 
@@ -65,10 +75,36 @@ function make_player()
 
     else
 
+      if p.mode=="man" and p.y<120 then
+        p.mode="plane"
+        p.y=110
+        p.x=4
+        p.dy=-1
+        sfx(10)
+      elseif p.mode=="plane" and p.y>112 then
+        p.mode="man"
+        p.x=4
+        p.y=121
+        p.dy=0
+        sfx(10)
+      end
+
+      if p.mode=="man" then
+        p.maxspd=2
+        p.drg=0.3
+      else
+        p.maxspd=2.5
+        p.drg=0.95 --friction (1=none,0=instant)
+      end
+
       -- fuel check
       if (t%2==0) then
         -- moving? reduce fuel
-        if (p.dy~=0 or p.dx~=0) then p.fuel-=(abs(p.dx)+abs(p.dy)) else p.fuel-=0.5 end
+        if p.mode=="man" then
+          p.fuel-=0.1
+        else
+          if (p.dy~=0 or p.dx~=0) then p.fuel-=(abs(p.dx)+abs(p.dy)) else p.fuel-=0.5 end
+        end
         if (p.fuel==0) p.die()
       end
 
@@ -130,7 +166,7 @@ function make_player()
         end
       end
       -- fire
-      if btnp(4, 0) then
+      if p.mode=="plane" and btnp(4,0) then
         if (abs(p.dx)~=0 or abs(p.dy)~=0) then
           sfx(00)
           local dx=p.dx
@@ -138,42 +174,38 @@ function make_player()
           -- support for quick turn and shoots when direction doesn't match flipx/flipy
           if p.dy==0 and ((p.flipx and p.dx>0) or (not p.flipx and p.dx<0)) then dx=p.dx*-1 end
           if p.dx==0 and ((p.flipy and p.dy<0) or (not p.flipy and p.dy>0)) then dy=p.dy*-1 end
-          add(bullets, new_bullet(p.x+3, p.y+4, dx, dy))
+          add(bullets,new_bullet(p.x+3,p.y+4,dx,dy))
         end
       end
 
       --limit to max speed
-      p.dx=mid(-p.maxspd, p.dx, p.maxspd)
-      p.dy=mid(-p.maxspd, p.dy, p.maxspd)
+      p.dx=mid(-p.maxspd,p.dx,p.maxspd)
+      p.dy=mid(-p.maxspd,p.dy,p.maxspd)
 
       --check if next to wall
       wall_check(p)
 
-      check_building_hit(p, "player")
+      check_building_hit(p,"player")
 
       --can move?
       if (can_move(p,p.dx,p.dy)) then
         p.x+=p.dx
         p.y+=p.dy
-
         -- if no buttons pushed, ensure sprite is facing direction
         if not btn(0) and not btn(1) and not btn(2) and not btn(3) then
-          p.sprite=19
-          p.flipx=false
-          p.flipy=false
           --up=sprite18 --down=sprite18,flipy
-          if p.dx==0 and p.dy<0 then p.sprite=18 end
+          if p.dx==0 and p.dy<0 then p.sprite=18 p.flipy=false end
           if p.dx==0 and p.dy>0 then p.sprite=18 p.flipy=true end
           --right=sprite19 --left=sprite19,flipx
-          if p.dx<0 and p.dy==0 then p.flipx=true end
+          if p.dx>0 and p.dy==0 then p.sprite=19 p.flipx=false end
+          if p.dx<0 and p.dy==0 then p.sprite=19 p.flipx=true end
           --upright=sprite20 --upleft=sprite20,flipx
-          if p.dx>0 and p.dy<0 then p.sprite=20 end
+          if p.dx>0 and p.dy<0 then p.sprite=20 p.flipx=false end
           if p.dx<0 and p.dy<0 then p.sprite=20 p.flipx=true end
           --downright=sprite21 --downleft=sprite21,flipx
-          if p.dx>0 and p.dy>0 then p.sprite=21 end
+          if p.dx>0 and p.dy>0 then p.sprite=21 p.flipx=false end
           if p.dx<0 and p.dy>0 then p.sprite=21 p.flipx=true end
         end
-
       end
 
       --add drag
@@ -181,8 +213,10 @@ function make_player()
       if (abs(p.dy)>0) p.dy*=p.drg
 
       --make sure they don't drop below min speed
-      p.dx=minspeed(p.dx,p.minspd)
-      p.dy=minspeed(p.dy,p.minspd)
+      if p.mode=="plane" then
+        p.dx=minspeed(p.dx,p.minspd)
+        p.dy=minspeed(p.dy,p.minspd)
+      end
 
     end
   end
