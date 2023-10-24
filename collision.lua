@@ -23,14 +23,7 @@ function coll(a,b)
  return true
 end
 
---this function takes an object
---and a speed in the x and y
---directions. it uses those
---to check the four corners of
---the object to see it can move
---into that spot. (a map tile
---marked as solid would prevent
---movement into that spot.)
+-- can sprite move in a direction?
 function can_move(a,dx,dy)
   --where object is trying to be, relative to hitbox (a.box)
   local nx_l=a.x+dx+a.box.x1   --lft
@@ -55,20 +48,14 @@ end
 --against the map to see if it
 --can be walked on or not
 function solid(x,y)
+  -- offstage?
   if x<0 or x>128 or y<9 then return true end
 
- --pixel coords -> map coords
- local map_x=flr(x/8)
- local map_y=flr(y/8)
-
- --what sprite is at that spot?
- local map_sprite=mget(map_x,map_y)
-
- --what flag does it have?
- local flag=fget(map_sprite, 0)
-
- --if the flag is 1, it's solid
- return flag
+  local map_x=flr(x/8)
+  local map_y=flr(y/8)
+  local map_sprite=mget(map_x,map_y)
+  local flag=fget(map_sprite,0)
+  return flag
 end
 
 --this checks to see if the
