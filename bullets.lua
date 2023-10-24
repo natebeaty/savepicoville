@@ -13,13 +13,15 @@ function new_bullet(x,y,dx,dy)
     -- check for collisions with enemy
     for obj in all(enemies) do
       if (coll(this,obj)) then
-        p.score+=10
+        p.score+=2
+        enemies_killed+=1
         obj.die(obj)
-        del(bullets, this)
+        del(bullets,this)
+        check_level()
       end
     end
     -- check for collisions with supply
-    for grp in all({supply, balloon}) do
+    for grp in all({supply,balloon}) do
       for obj in all(grp) do
         if (coll(this,obj)) then
           obj.die(obj)
@@ -38,7 +40,7 @@ function new_bullet(x,y,dx,dy)
 
   -- draw loop
   obj.draw=function(this)
-    line(this.x-obj.dx, this.y-obj.dy, this.x, this.y, 1)
+    line(this.x-obj.dx,this.y-obj.dy,this.x,this.y,1)
   end
 
   --return the bullet
