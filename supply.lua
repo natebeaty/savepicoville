@@ -25,6 +25,14 @@ function new_balloon(supply)
       balloon={}
     end
 
+    -- check for collisions with enemy
+    for obj in all(enemies) do
+      if (coll(this,obj)) then
+        obj.die(obj)
+        this.die(this)
+      end
+    end
+
     -- parachute open?
     if obj.t < 20 then
       if t%5==0 then this.sprite=37 else this.sprite=38 end
@@ -36,6 +44,9 @@ function new_balloon(supply)
 
     -- check for collisions with building
     check_building_hit(this,balloon)
+
+    -- bottom of stage? pop balloon
+    if (this.y>112) this.die(this)
 
     --move it
     this.x += this.dx
@@ -96,7 +107,7 @@ function new_supply()
     if (screen_pos>0.2 and screen_pos<0.8) check_balloon_spawn(this)
 
     -- offscreen?
-    if (this.x<-10 or this.x>138) del(supply,this)
+    if (is_offstage(this,10)) del(supply,this)
   end
 
   obj.draw = function(this)
