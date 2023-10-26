@@ -1,4 +1,4 @@
---save chicago!
+--save picoville!
 
 -- ensure min speeds, pos or neg
 function minspeed(spd,minspd)
@@ -239,9 +239,9 @@ function _draw()
     pal(13,10)
     spr(64,19,25,12,1)
     pal(13,13)
-    -- print("save chicago!",39,31,1)
-    -- print("save chicago!",39,30,9)
-    -- print("save chicago!",39,29,7)
+    -- print("save picoville!",37,31,1)
+    -- print("save picoville!",37,30,9)
+    -- print("save picoville!",37,29,7)
     print("🅾️ start game",39,45,1)
     rectfill(0,119,128,128,1)
     print("hi-score:"..pad(hiscore.."0",6),34,121,9)

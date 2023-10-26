@@ -165,7 +165,7 @@ function building_update()
       -- shorten building height
       obj.building.height-=obj.rowbusted
     end
-    -- you killed chicago!
+    -- you killed picoville!
     if (peopleleft<=0) game_over()
     buildingcrash={}
   end
