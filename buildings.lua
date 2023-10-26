@@ -139,6 +139,7 @@ function new_rumblingrow(x,y,delay)
     else
       if this.t%3<2 then sprite=24 else sprite=25 end
     end
+    -- screen_shake(0.005)
     pset(this.x+rnd(10)-1,this.y+rnd(10)-1,1)
     pset(this.x+rnd(10)-1,this.y+rnd(10)-1,10)
     spr(sprite,this.x,this.y)

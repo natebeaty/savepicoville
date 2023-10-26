@@ -15,9 +15,22 @@ function pad(string,length)
   return "0"..pad(string,length-1)
 end
 
+-- check if object offstage
 function is_offstage(obj,offset)
   offset=offset or 0
   return obj.x<0-offset or obj.x>128+offset or obj.x<0-offset or obj.y>128+offset
+end
+
+function screen_shake(offset)
+  local offset_x=16-rnd(32)
+  local offset_y=16-rnd(32)
+  offset_x*=offset
+  offset_y*=offset
+  camera(offset_x,offset_y)
+  offset*=0.95
+  if offset<0.05 then
+    offset=0
+  end
 end
 
 function _init()
@@ -25,6 +38,7 @@ function _init()
   level=1
   hiscore=0
   enemieskilled=0
+  clrt={13,14,9,14,13}
   enemyspeed=1
   mode="title"
   explosions={}
@@ -214,9 +228,20 @@ function _draw()
     rectfill(0,0,128,8,1)
     rectfill(16,1,112,7,9)
     print("beaty softworks presents",17,2,1)
-    print("save chicago!",39,31,1)
-    print("save chicago!",39,30,9)
-    print("save chicago!",39,29,7)
+    if (t%6==0) then
+      local foo=deli(clrt,1)
+      add(clrt,foo)
+    end
+    pal(13,clrt[1])
+    spr(64,19,27,12,1)
+    pal(13,clrt[2])
+    spr(64,19,26,12,1)
+    pal(13,10)
+    spr(64,19,25,12,1)
+    pal(13,13)
+    -- print("save chicago!",39,31,1)
+    -- print("save chicago!",39,30,9)
+    -- print("save chicago!",39,29,7)
     print("🅾️ start game",39,45,1)
     rectfill(0,119,128,128,1)
     print("hi-score:"..pad(hiscore.."0",6),34,121,9)
