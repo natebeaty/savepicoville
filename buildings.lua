@@ -7,11 +7,11 @@ function building_blink(chk)
     for i=1,#buildings do
       for h=1,buildings[i].height do
         for w=1,buildings[i].width do
-          local map_x=buildings[i].x+w
-          local map_y=14-buildings[i].height+h
-          local map_sprite=mget(map_x,map_y)
+          local mx=buildings[i].x+w
+          local my=14-buildings[i].height+h
+          local map_sprite=mget(mx,my)
           if (chk==1 or rnd()>0.98) and fget(map_sprite,1) and not fget(map_sprite,2) then
-            mset(map_x,map_y,flr(rnd(5))+1)
+            mset(mx,my,flr(rnd(5))+1)
           end
         end
       end
@@ -58,36 +58,51 @@ function check_building_hit(obj,grp)
   local nx_r=obj.x+obj.dx+obj.box.x2
   local ny_t=obj.y+obj.dy+obj.box.y1
   local ny_b=obj.y+obj.dy+obj.box.y2
-  -- set variable so we can use "or"
-  local foo = is_undamaged_brick(nx_l,ny_t,obj,grp) or
+  local hit=is_undamaged_brick(nx_l,ny_t,obj,grp) or
     is_undamaged_brick(nx_l,ny_b,obj,grp) or
     is_undamaged_brick(nx_r,ny_t,obj,grp) or
     is_undamaged_brick(nx_r,ny_b,obj,grp)
+  return hit
 end
 
-function is_undamaged_brick(x,y,obj,grp)
-  local map_x=flr(x/8)
-  local map_y=flr(y/8)
-  local map_sprite=mget(map_x,map_y)
+function is_undamaged_brick(x,y,obj,grp,keep)
+  keep=keep or false
+  local mx=flr(x/8)
+  local my=flr(y/8)
+  local map_sprite=mget(mx,my)
   local chk=fget(map_sprite,1) and not fget(map_sprite,2)
-  if grp=="player" then chk=fget(map_sprite,1) end
+  -- make player
+  if (grp=="player" or grp==balloon) chk=fget(map_sprite,1)
   if chk then
-    -- remove object hitting building
-    if grp=="player" then p.die()
-    else del(grp,obj) end
-    sfx(1)
-    new_explosion(map_x*8,map_y*8)
-    -- random damaged sprite
-    mset(map_x,map_y,6+flr(rnd(2)))
-    -- check building rows for collapse
-    check_building_collapse()
-    return true
+    if not keep then
+      -- remove object hitting building
+      if grp=="player" then p.die()
+      else del(grp,obj) end
+      sfx(1)
+      new_explosion(mx*8,my*8)
+      damage_brick(mx,my)
+    end
+    return {mx=mx,my=my}
   end
   return false
 end
 
+function damage_brick(mx,my)
+  local chk=false
+  -- sanity check if brick is undamaged (e.g. enemy was chomping when it crumbled)
+  local map_sprite=mget(mx,my)
+  if fget(map_sprite,1) and not fget(map_sprite,2) then
+    -- set random damaged sprite
+    mset(mx,my,6+flr(rnd(2)))
+    -- check building rows for collapse
+    chk=check_building_collapse()
+  end
+  return chk
+end
+
 -- check for any building rows with all damage
 function check_building_collapse()
+  local chk=false
   for building in all(buildings) do
     for i=1,building.height do
       rowbusted=true
@@ -99,11 +114,13 @@ function check_building_collapse()
         end
       end
       if rowbusted then
+        chk=true
         -- collapsing rubble
         add(buildingcrash,{building=building,rowbusted=i})
       end
     end
   end
+  return chk
 end
 
 -- row to collapse
@@ -115,17 +132,15 @@ function new_rumblingrow(x,y,delay)
   end
   obj.draw=function(this)
     local sprite=24
-    if (this.t > this.delay+10) then
-      if this.t%3==0 then sprite=28 else sprite=29 end
-    elseif (this.t > this.delay+5) then
-      if this.t%3==0 then sprite=26 else sprite=27 end
+    if (this.t>this.delay+10) then
+      if this.t%3<2 then sprite=28 else sprite=29 end
+    elseif (this.t>this.delay+5) then
+      if this.t%3<2 then sprite=26 else sprite=27 end
     else
-      if this.t%3==0 then sprite=24 else sprite=25 end
+      if this.t%3<2 then sprite=24 else sprite=25 end
     end
-    for i=1,2 do
-      pset(this.x+rnd(10)-1,this.y+rnd(10)-1,1)
-      pset(this.x+rnd(10)-1,this.y+rnd(10)-1,10)
-    end
+    pset(this.x+rnd(10)-1,this.y+rnd(10)-1,1)
+    pset(this.x+rnd(10)-1,this.y+rnd(10)-1,10)
     spr(sprite,this.x,this.y)
   end
   return obj
