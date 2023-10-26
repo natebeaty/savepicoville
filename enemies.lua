@@ -1,8 +1,175 @@
 -- enemies functions
 
--- spawn enemies in update function
+-- spawn enemies?
 function check_enemy_spawn(max)
   if (#enemies<max and rnd()>0.95) add(enemies,new_enemy(rnd(128),0))
+end
+
+-- spawn gremlins?
+function check_gremlin_spawn(max,x,y)
+  if (x>20 and y>30 and y<90 and x<120 and #gremlins<max and rnd()>0.998) add(gremlins,new_gremlin(x,y))
+end
+
+-- construct new enemy
+function new_enemy(x,y)
+  local obj={x=x,y=y,dx=(rnd(3)-2)*0.75,dy=rnd(2)*0.75,sprite=16,t=0,mode="crab",chomp=0,chompcoords={}}
+  obj.box={x1=0,y1=2,x2=8,y2=8}
+
+  obj.update=function(this)
+    this.t+=1
+
+    -- hitting player?
+    if p.dying==0 and coll(this,p) then
+      p.die()
+      this.die(this)
+    end
+
+    -- animate
+    if t%4<2 then this.sprite=16 else this.sprite=17 end
+
+    --herky jerk
+    if this.t>10 and rnd()>0.95 then
+      this.t=0
+      this.dx = (rnd(2)-1)*(enemyspeed*enemyspeed*49/10000+1)*0.75
+      if this.y>50 then
+        this.dy = (rnd(2)-1)*(enemyspeed*enemyspeed*49/10000+1)*0.75
+      else
+        this.dy = (rnd())*(enemyspeed*enemyspeed*49/10000+1)*0.75
+      end
+    end
+
+    -- chomp?
+    if this.t>10 and this.chomp==0 and flr(this.y+8)%8==0 and flr(this.x+8)%8==0 and rnd()>0.25 then
+      this.t=0
+      local hit=is_undamaged_brick(this.x,this.y,this,enemies,true)
+      if hit then
+        this.chompcoords=hit
+        this.chomp=70
+      end
+    end
+
+    --move it unless chompin'
+    if (this.chomp==0) then
+      this.x += this.dx
+      this.y += this.dy
+      -- spawn egg?
+      check_gremlin_spawn(1,this.x,this.y)
+    else
+      this.chomp-=1
+      if this.chomp==0 then
+        damage_brick(this.chompcoords.mx,this.chompcoords.my)
+      end
+    end
+
+    -- bounce from vertical edge
+    if (this.y<-1 or this.y>110) then
+      this.dy=-this.dy
+    end
+    -- delete if offstage horizontally
+    if (this.x<-10 or this.x>138) then
+      del(enemies,this)
+    end
+
+    -- offscreen?
+    if (this.x<-10 or this.x>138) del(enemies,this)
+  end
+
+  obj.draw = function(this)
+    spr(this.sprite,this.x,this.y)
+  end
+
+  obj.die=function(this)
+    sfx(02)
+    sfx(03)
+    new_explosion(this.x,this.y)
+    del(enemies,this)
+  end
+
+  return obj
+end
+
+-- construct new gremlin
+function new_gremlin(x,y)
+  local obj={x=x,y=y,dx=0,dy=1,sprite=54,t=0,mode="egg",chomp=0,chompcoords={}}
+  obj.box={x1=1,y1=1,x2=7,y2=7}
+
+  obj.update=function(this)
+    this.t+=1
+
+    -- hitting player?
+    if p.dying==0 and coll(this,p) then
+      p.die()
+      this.die(this)
+    end
+
+    if this.mode=="egg" then
+      if t%6<3 then this.flipx=true else this.flipx=false end
+    elseif this.mode=="gremlin" then
+      if t%6<3 then this.sprite=55 else this.sprite=56 end
+    end
+
+    --herky jerk
+    if this.mode=="gremlin" then
+      if this.t>10 and rnd()>0.98 then
+        this.t=0
+        this.dx = (rnd(2)-1)*(enemyspeed*enemyspeed*49/10000+1)*0.25
+        this.dy = (rnd(2)-1)*(enemyspeed*enemyspeed*49/10000+1)*0.25
+      end
+      -- bounce from edges
+      if (this.y<114 or this.y>124) then
+        this.dy=-this.dy*0.5
+      end
+      if (this.x<12 or this.x>128) then
+        this.dx=-this.dx
+      end
+    end
+
+    --move it unless chompin'
+    if (this.chomp==0) then
+      this.x += this.dx
+      this.y += this.dy
+    else
+      this.chomp-=1
+      if this.chomp==0 then
+        local chk=damage_brick(this.chompcoords.mx,this.chompcoords.my)
+        -- if gremlin collapsed a building row, it destroyed the building, kill gremlin
+        if (chk) this.die(this)
+      end
+    end
+
+    -- turn into gremlin?
+    if this.mode=="egg" and this.y>115 then
+      this.mode="gremlin"
+      this.dy=0
+    end
+
+    -- chomp?
+    if this.mode=="gremlin" and this.chomp==0 and flr(this.x+8)%8==0 and this.y<=116 and rnd()>0.5 then
+      local hit=is_undamaged_brick(this.x,this.y,this,gremlins,true)
+      if hit then
+        this.chompcoords=hit
+        this.chomp=70
+      end
+    end
+
+    -- offscreen?
+    if (this.x<-10 or this.x>138) del(gremlins,this)
+  end
+
+  obj.draw = function(this)
+    spr(this.sprite,this.x,this.y,1,1,this.flipx)
+    -- print(this.x.." "..this.y,20,20,7)
+    -- print(this.dx.." "..this.dy,20,30,7)
+  end
+
+  obj.die=function(this)
+    sfx(02)
+    sfx(03)
+    new_explosion(this.x,this.y)
+    del(gremlins,this)
+  end
+
+  return obj
 end
 
 -- new explosion
@@ -28,67 +195,4 @@ function new_explosion(x,y)
     end
   end
   add(explosions,obj)
-end
-
--- construct new enemy
-function new_enemy(x,y)
-  local obj={x=x,y=y,dx=0,dy=0.5,sprite=16,t=0}
-  obj.box={x1=0,y1=2,x2=8,y2=8}
-
-  obj.update=function(this)
-    this.t+=1
-
-    -- hitting player?
-    if p.dying==0 and coll(this,p) then
-      p.die()
-      this.die(this)
-    end
-
-    -- hitting supply?
-    foreach(supply,function(obj)
-      if coll(this,obj) then
-        obj.die(obj)
-        this.die(this)
-      end
-    end)
-
-    if t%4==0 then this.sprite=16 else this.sprite=17 end
-
-    --herky jerk
-    if this.t%3 and rnd()>0.95 then
-      this.dx = (rnd(3)-1)*enemyspeed*0.25
-      this.dy = (rnd(3)-1)*enemyspeed*0.25
-    end
-
-    --move it
-    this.x += this.dx
-    this.y += this.dy
-
-    -- bounce from vertical edge
-    if (this.y<-1 or this.y>110) then
-      this.dy=-this.dy
-    end
-    -- delete if offstage horizontally
-    if (this.x<-10 or this.x>138) then
-      del(enemies,this)
-    end
-
-    -- offscreen?
-    if (this.x < -10 or this.x > 138) del(enemies,this)
-  end
-
-  obj.draw = function(this)
-    spr(this.sprite,this.x,this.y)
-  end
-
-  --bye bye
-  obj.die=function(this)
-    sfx(02)
-    sfx(03)
-    new_explosion(this.x,this.y)
-    del(enemies,this)
-  end
-
-  --return the enemy
-  return obj
 end

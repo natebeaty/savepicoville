@@ -49,11 +49,10 @@ end
 --can be walked on or not
 function solid(x,y)
   -- offstage?
-  if x<0 or x>128 or y<9 then return true end
-
-  local map_x=flr(x/8)
-  local map_y=flr(y/8)
-  local map_sprite=mget(map_x,map_y)
+  if (x<0 or x>128 or y<9) return true
+  local mx=flr(x/8)
+  local my=flr(y/8)
+  local map_sprite=mget(mx,my)
   local flag=fget(map_sprite,0)
   return flag
 end
