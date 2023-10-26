@@ -2,7 +2,7 @@
 
 -- spawn supply in update function
 function check_supply_spawn()
-  if (#supply<1 and #balloon<1 and t%3==0 and rnd()>0.98) add(supply,new_supply())
+  if (#supply<1 and #balloon<1 and t%3==0 and rnd()>0.99) add(supply,new_supply())
 end
 function check_balloon_spawn(obj)
   if (not obj.has_deployed and rnd()>0.97) add(balloon,new_balloon(obj))
@@ -25,21 +25,23 @@ function new_balloon(supply)
       balloon={}
     end
 
-    -- check for collisions with enemy
-    for obj in all(enemies) do
-      if (coll(this,obj)) then
-        obj.die(obj)
-        this.die(this)
+    -- check for collisions with enemies
+    for grp in all({enemies,gremlins}) do
+      for obj in all(grp) do
+        if (coll(this,obj)) then
+          obj.die(obj)
+          this.die(this)
+        end
       end
     end
 
     -- parachute open?
     if obj.t < 20 then
-      if t%5==0 then this.sprite=37 else this.sprite=38 end
+      if t%4<2 then this.sprite=37 else this.sprite=38 end
     else
       this.dx = 0
       this.dy = 0.5
-      if t%5==0 then this.sprite=39 else this.sprite=40 end
+      if t%4<2 then this.sprite=39 else this.sprite=40 end
     end
 
     -- check for collisions with building
@@ -63,7 +65,6 @@ function new_balloon(supply)
   --bye bye
   obj.die=function(this)
     sfx(02)
-    sfx(03)
     new_explosion(this.x,this.y)
     del(balloon,this)
   end
@@ -91,8 +92,18 @@ function new_supply()
       this.die(this)
     end
 
+    -- check for collisions with enemies
+    for grp in all({enemies,gremlins}) do
+      for obj in all(grp) do
+        if (coll(this,obj)) then
+          obj.die(obj)
+          this.die(this)
+        end
+      end
+    end
+
     -- animate jet
-    if t%5==0 then this.sprite=35 else this.sprite=36 end
+    if t%4<2 then this.sprite=35 else this.sprite=36 end
 
     --move it!
     if this.has_deployed then this.x += this.dx * 2 else this.x += this.dx end
@@ -114,10 +125,8 @@ function new_supply()
     spr(this.sprite,this.x,this.y,1,1,this.flipx)
   end
 
-  --bye bye
   obj.die = function(this)
     sfx(02)
-    sfx(03)
     new_explosion(this.x,this.y)
     del(supply,this)
   end
