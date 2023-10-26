@@ -10,16 +10,25 @@ function new_bullet(x,y,dx,dy)
 
   -- update loop
   obj.update=function(this)
-    -- check for collisions with enemy
-    for obj in all(enemies) do
-      if (coll(this,obj)) then
-        p.score+=2
-        enemieskilled+=1
-        obj.die(obj)
-        del(bullets,this)
-        check_level()
+    -- check for collisions with enemies
+    for grp in all({enemies,gremlins}) do
+      for obj in all(grp) do
+        if (coll(this,obj)) then
+          if obj.mode=="egg" then
+            p.score+=5
+          elseif obj.mode=="gremlin" then
+            p.score+=9
+          else
+            p.score+=2
+          end
+          enemieskilled+=1
+          obj.die(obj)
+          del(bullets,this)
+          check_level()
+        end
       end
     end
+
     -- check for collisions with supply
     for grp in all({supply,balloon}) do
       for obj in all(grp) do
