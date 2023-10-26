@@ -2,12 +2,13 @@
 
 -- ensure min speeds, pos or neg
 function minspeed(spd,minspd)
-  if (abs(spd)!=0 and abs(spd)<minspd) then
+  if (abs(spd)~=0 and abs(spd)<minspd) then
     if spd<0 then spd=-minspd else spd=minspd end
   end
   return spd
 end
 
+-- zero pad a number
 function pad(string,length)
   string=""..string
   if (#string==length) return string
@@ -32,6 +33,7 @@ function _init()
   peopleleft=100
   bullets={}
   enemies={}
+  gremlins={}
   supply={}
   balloon={}
   bonuscheck={x=0,y=15}
@@ -62,26 +64,34 @@ end
 
 function check_level()
   if (enemieskilled>=5 and level==1 or enemieskilled>=10) then
-    enemieskilled=0
-    enemies={}
-    supply={}
-    balloon={}
-    bullets={}
-    t=0
-    enemyspeed=level
-    mode="bonus"
-    -- set min/max starting points for bonuscheck
-    for building in all(buildings) do
-      bonuscheck.y = min(bonuscheck.y,15-building.height)
-      bonuscheck.x = max(bonuscheck.x,building.x+building.width)
-    end
+    next_level()
+  end
+end
+
+function next_level()
+  enemieskilled=0
+  enemies={}
+  gremlins={}
+  supply={}
+  balloon={}
+  bullets={}
+  t=0
+  enemyspeed=level
+  mode="bonus"
+  -- set min/max starting points for bonuscheck
+  for building in all(buildings) do
+    bonuscheck.y = min(bonuscheck.y,15-building.height)
+    bonuscheck.x = max(bonuscheck.x,building.x+building.width)
   end
 end
 
 function start_game()
+  make_buildings()
   music(-1)
   sfx(05)
   enemies={}
+  gremlins={}
+  bullets={}
   mode="game"
 end
 
@@ -103,7 +113,7 @@ function _update()
 
     building_blink(4)
     check_enemy_spawn(5)
-    for grp in all({enemies,supply,balloon}) do
+    for grp in all({enemies,gremlins,rumblingrows}) do
       for obj in all(grp) do
         obj.update(obj)
       end
@@ -149,7 +159,7 @@ function _update()
       end
     else
       building_blink(1)
-      if (t>5 and btn(4)) then
+      if (t>10 and btnp(4)) then
         -- add remaining bonus
         t=0
         level+=1
@@ -164,7 +174,7 @@ function _update()
     building_blink(3)
     check_enemy_spawn(level+1)
     check_supply_spawn()
-    for grp in all({bullets,enemies,supply,balloon,explosions,rumblingrows}) do
+    for grp in all({bullets,enemies,gremlins,supply,balloon,explosions,rumblingrows}) do
       for obj in all(grp) do
         obj.update(obj)
       end
@@ -173,12 +183,12 @@ function _update()
   elseif mode=="game over" then
 
     building_blink(1)
-    for grp in all({enemies,supply,balloon,explosions,rumblingrows}) do
+    for grp in all({enemies,gremlins,supply,balloon,explosions,rumblingrows}) do
       for obj in all(grp) do
         obj.update(obj)
       end
     end
-    if (t>5 and btn(4)) then
+    if (t>10 and btnp(4)) then
       restart()
     end
 
@@ -196,7 +206,7 @@ function _draw()
 
   if mode=="title" then
 
-    for grp in all({enemies}) do
+    for grp in all({enemies,gremlins,rumblingrows}) do
       for obj in all(grp) do
         obj.draw(obj)
       end
@@ -213,7 +223,7 @@ function _draw()
 
   elseif mode=="game" then
 
-    for grp in all({bullets,enemies,supply,balloon,explosions,rumblingrows}) do
+    for grp in all({bullets,enemies,gremlins,supply,balloon,explosions,rumblingrows}) do
       for obj in all(grp) do
         obj.draw(obj)
       end
@@ -236,14 +246,15 @@ function _draw()
 
   elseif mode=="game over" then
 
-    for grp in all({enemies,supply,balloon,explosions}) do
+    for grp in all({enemies,gremlins,supply,balloon,explosions}) do
       for obj in all(grp) do
         obj.draw(obj)
       end
     end
-      rectfill(0,0,128,8,1)
-      print("score:"..p.score.."0",48,2,9)
-      print("game  over",44,31,1)
-      print("🅾️ restart",44,45,1)
+    rectfill(0,0,128,8,1)
+    local scoretxt = "score:"..p.score.."0"
+    print(scoretxt,64-#scoretxt*2,2,9)
+    print("game  over",44,31,1)
+    print("🅾️ restart",44,45,1)
   end
 end
