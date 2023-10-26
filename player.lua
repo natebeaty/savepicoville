@@ -177,8 +177,9 @@ function make_player()
           p.sprite=21
         end
       end
+
       -- fire
-      if p.mode=="plane" and btnp(4,0) then
+      if p.mode=="plane" and mode=="game" and btnp(4,0) then
         if (abs(p.dx)~=0 or abs(p.dy)~=0) then
           sfx(00)
           local dx=p.dx
