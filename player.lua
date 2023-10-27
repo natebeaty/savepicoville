@@ -5,7 +5,7 @@
 function make_player()
   p={}
   p.x=4
-  p.y=121
+  p.y=113
   p.dx=0
   p.dy=0
   p.life="♥♥♥"
@@ -49,7 +49,7 @@ function make_player()
     p.fuel=999
     p.mode="man"
     p.x=4
-    p.y=121
+    p.y=113
     p.dx=0
     p.dy=0
   end
@@ -58,7 +58,7 @@ function make_player()
     if p.dying==0 then
       if p.mode=="man" then
         spr(0,p.x,p.y)
-        spr(18,4,112)
+        spr(18,4,104)
       else
         spr(p.sprite,p.x,p.y,1,1,p.flipx,p.flipy)
       end
@@ -78,20 +78,20 @@ function make_player()
 
     else
 
-      if p.mode=="man" and p.y<120 then
+      if p.mode=="man" and p.y<112 then
         p.mode="plane"
         p.x=4
-        p.y=110
+        p.y=102
         p.dy=-1
         p.box=p.boxplane
         sfx(10)
-      elseif p.mode=="plane" and p.y>112 then
+      elseif p.mode=="plane" and p.y>104 then
         if p.x>16 then
           p.die()
         else
           p.mode="man"
           p.x=4
-          p.y=121
+          p.y=113
           p.dy=0
           p.box=p.boxman
           sfx(10)
@@ -100,7 +100,7 @@ function make_player()
 
       if p.mode=="man" then
         p.maxspd=2
-        p.drg=0.3
+        p.drg=0.4
       else
         p.maxspd=2.5
         p.drg=0.95 --friction (1=none,0=instant)
@@ -179,15 +179,19 @@ function make_player()
       end
 
       -- fire
-      if p.mode=="plane" and mode=="game" and btnp(4,0) then
-        if (abs(p.dx)~=0 or abs(p.dy)~=0) then
+      if btnp(4) then
+        if mode=="game" and (p.mode=="man" or abs(p.dx)~=0 or abs(p.dy)~=0) then
           sfx(00)
           local dx=p.dx
           local dy=p.dy
           -- support for quick turn and shoots when direction doesn't match flipx/flipy
           if p.dy==0 and ((p.flipx and p.dx>0) or (not p.flipx and p.dx<0)) then dx=p.dx*-1 end
           if p.dx==0 and ((p.flipy and p.dy<0) or (not p.flipy and p.dy>0)) then dy=p.dy*-1 end
-          add(bullets,new_bullet(p.x+3,p.y+4,dx,dy))
+          if p.mode=="plane" then
+            add(bullets,new_bullet(p.x+3,p.y+4,dx,dy))
+          else
+            add(bullets,new_man_bullet(p.x+3,p.y+4,dx,dy))
+          end
         end
       end
 
