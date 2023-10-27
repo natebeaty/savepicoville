@@ -8,7 +8,7 @@ function building_blink(chk)
       for h=1,buildings[i].height do
         for w=1,buildings[i].width do
           local mx=buildings[i].x+w
-          local my=14-buildings[i].height+h
+          local my=13-buildings[i].height+h
           local map_sprite=mget(mx,my)
           if (chk==1 or rnd()>0.98) and fget(map_sprite,1) and not fget(map_sprite,2) then
             mset(mx,my,flr(rnd(5))+1)
@@ -23,8 +23,8 @@ end
 function make_buildings()
   rumblingrows={}
   -- reset all building tiles to sky
-  for x=0,16 do
-    for y=0,14 do
+  for x=2,16 do
+    for y=0,13 do
       mset(x,y,8)
     end
   end
@@ -44,7 +44,7 @@ function make_buildings()
     lastx=lastx+building.width+(flr(rnd(3)))
     for n=1,building.height do
       for x=1,building.width do
-        mset(building.x+x,15-n,flr(rnd(5))+1)
+        mset(building.x+x,14-n,flr(rnd(5))+1)
       end
     end
     peopleleft+=building.height*building.width
@@ -107,7 +107,7 @@ function check_building_collapse()
     for i=1,building.height do
       rowbusted=true
       for j=1,building.width do
-        local map_sprite=mget(building.x+j,14-building.height+i)
+        local map_sprite=mget(building.x+j,13-building.height+i)
         -- any undamaged pieces? row is not busted
         if not fget(map_sprite,2) then
           rowbusted=false
@@ -132,14 +132,14 @@ function new_rumblingrow(x,y,delay)
   end
   obj.draw=function(this)
     local sprite=24
-    if (this.t>this.delay+10) then
-      if this.t%3<2 then sprite=28 else sprite=29 end
-    elseif (this.t>this.delay+5) then
+    if (this.t>this.delay+6) then
       if this.t%3<2 then sprite=26 else sprite=27 end
-    else
+    elseif (this.t>this.delay+3) then
       if this.t%3<2 then sprite=24 else sprite=25 end
+    else
+      if this.t%3<2 then sprite=22 else sprite=23 end
     end
-    -- screen_shake(0.005)
+    -- screen_shake(0.05)
     pset(this.x+rnd(10)-1,this.y+rnd(10)-1,1)
     pset(this.x+rnd(10)-1,this.y+rnd(10)-1,10)
     spr(sprite,this.x,this.y)
@@ -155,9 +155,9 @@ function building_update()
         sfx(11)
         for j=1,obj.building.width do
           local mx=obj.building.x+j
-          local my=14-obj.building.height+i
+          local my=13-obj.building.height+i
           mset(mx,my,8)
-          add(rumblingrows,new_rumblingrow(mx*8,my*8,i*10))
+          add(rumblingrows,new_rumblingrow(mx*8,my*8,i*6))
         end
         -- any undamaged brick left?
         peopleleft-=obj.building.width
@@ -166,7 +166,7 @@ function building_update()
       obj.building.height-=obj.rowbusted
     end
     -- you killed picoville!
-    if (peopleleft<=0) game_over()
+    if (peopleleft<=0 and mode=="game") game_over()
     buildingcrash={}
   end
 end

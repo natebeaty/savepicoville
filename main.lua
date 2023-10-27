@@ -15,6 +15,18 @@ function pad(string,length)
   return "0"..pad(string,length-1)
 end
 
+function centertxt(str,y,clr,bg)
+  if (bg) rectfill(64-(#str*2)-1,y-1,64+(#str*2)-1,y+5,bg)
+  print(str,64-#str*2,y,clr)
+end
+
+function getmapsprite(x,y)
+  local mx=flr(x/8)
+  local my=flr(y/8)
+  local map_sprite=mget(mx,my)
+  return map_sprite
+end
+
 -- check if object offstage
 function is_offstage(obj,offset)
   offset=offset or 0
@@ -48,6 +60,7 @@ function _init()
   bullets={}
   enemies={}
   gremlins={}
+  trains={}
   supply={}
   balloon={}
   bonuscheck={x=0,y=15}
@@ -94,7 +107,7 @@ function next_level()
   mode="bonus"
   -- set min/max starting points for bonuscheck
   for building in all(buildings) do
-    bonuscheck.y = min(bonuscheck.y,15-building.height)
+    bonuscheck.y = min(bonuscheck.y,14-building.height)
     bonuscheck.x = max(bonuscheck.x,building.x+building.width)
   end
 end
@@ -111,8 +124,9 @@ end
 
 function restart()
   t=0
+  balloons={}
+  enemieskilled=0
   p.score=0
-  p.enemieskilled=0
   p.life="♥♥♥"
   mode="title"
   make_buildings()
@@ -127,7 +141,8 @@ function _update()
 
     building_blink(4)
     check_enemy_spawn(5)
-    for grp in all({enemies,gremlins,rumblingrows}) do
+    check_train_spawn()
+    for grp in all({enemies,gremlins,rumblingrows,trains}) do
       for obj in all(grp) do
         obj.update(obj)
       end
@@ -139,7 +154,7 @@ function _update()
 
   elseif mode=="bonus" then
 
-    for grp in all({explosions,rumblingrows}) do
+    for grp in all({explosions,rumblingrows,trains}) do
       for obj in all(grp) do
         obj.update(obj)
       end
@@ -165,7 +180,7 @@ function _update()
       p.score+=1
       bonuslastbrick={x=bonuscheck.x,y=bonuscheck.y}
       sfx(12)
-      mset(bonuscheck.x,bonuscheck.y,map_sprite+48) --white flash
+      mset(bonuscheck.x,bonuscheck.y,map_sprite+47) --white flash
       bonuscheck.x-=1
       if bonuscheck.x<0 then
         bonuscheck.y+=1
@@ -188,7 +203,8 @@ function _update()
     building_blink(3)
     check_enemy_spawn(level+1)
     check_supply_spawn()
-    for grp in all({bullets,enemies,gremlins,supply,balloon,explosions,rumblingrows}) do
+    check_train_spawn()
+    for grp in all({bullets,enemies,gremlins,supply,balloon,explosions,rumblingrows,trains}) do
       for obj in all(grp) do
         obj.update(obj)
       end
@@ -197,7 +213,7 @@ function _update()
   elseif mode=="game over" then
 
     building_blink(1)
-    for grp in all({enemies,gremlins,supply,balloon,explosions,rumblingrows}) do
+    for grp in all({enemies,gremlins,supply,balloon,explosions,rumblingrows,trains}) do
       for obj in all(grp) do
         obj.update(obj)
       end
@@ -220,35 +236,32 @@ function _draw()
 
   if mode=="title" then
 
-    for grp in all({enemies,gremlins,rumblingrows}) do
+    for grp in all({enemies,gremlins,rumblingrows,trains}) do
       for obj in all(grp) do
         obj.draw(obj)
       end
     end
     rectfill(0,0,128,8,1)
-    rectfill(16,1,112,7,9)
-    print("beaty softworks presents",17,2,1)
+    -- rectfill(33,1,93,7,9)
+    centertxt("clixel presents",2,12)
     if (t%6==0) then
       local foo=deli(clrt,1)
       add(clrt,foo)
     end
     pal(13,clrt[1])
-    spr(64,19,27,12,1)
+    spr(64,19,24,12,1)
     pal(13,clrt[2])
-    spr(64,19,26,12,1)
+    spr(64,19,23,12,1)
     pal(13,10)
-    spr(64,19,25,12,1)
+    spr(64,19,22,12,1)
     pal(13,13)
-    -- print("save picoville!",37,31,1)
-    -- print("save picoville!",37,30,9)
-    -- print("save picoville!",37,29,7)
-    print("🅾️ start game",39,45,1)
-    rectfill(0,119,128,128,1)
-    print("hi-score:"..pad(hiscore.."0",6),34,121,9)
+    centertxt("🅾️ start game",42,1)
+    -- rectfill(0,119,128,128,1)
+    centertxt("hi-score:"..pad(hiscore.."0",6),114,9,2)
 
   elseif mode=="game" then
 
-    for grp in all({bullets,enemies,gremlins,supply,balloon,explosions,rumblingrows}) do
+    for grp in all({bullets,enemies,gremlins,supply,balloon,explosions,rumblingrows,trains}) do
       for obj in all(grp) do
         obj.draw(obj)
       end
@@ -258,28 +271,27 @@ function _draw()
 
   elseif mode=="bonus" then
 
-    for grp in all({explosions,rumblingrows}) do
+    for grp in all({explosions,rumblingrows,trains}) do
       for obj in all(grp) do
         obj.draw(obj)
       end
     end
     status_bar()
-    print("level "..level.." complete",32,31,1)
+    print("level "..level.." complete",32,28,1)
     if bonuscheck.y<16 and t%30<15 then
-      print("bonus points",40,45,1)
+      print("bonus points",40,42,1)
     end
 
   elseif mode=="game over" then
 
-    for grp in all({enemies,gremlins,supply,balloon,explosions}) do
+    for grp in all({enemies,gremlins,supply,balloon,explosions,rumblingrows,trains}) do
       for obj in all(grp) do
         obj.draw(obj)
       end
     end
     rectfill(0,0,128,8,1)
-    local scoretxt = "score:"..p.score.."0"
-    print(scoretxt,64-#scoretxt*2,2,9)
-    print("game  over",44,31,1)
-    print("🅾️ restart",44,45,1)
+    centertxt("score:"..p.score.."0",2,9)
+    centertxt("game  over",28,1)
+    centertxt("🅾️ restart",42,1)
   end
 end

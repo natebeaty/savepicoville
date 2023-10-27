@@ -53,7 +53,7 @@ function new_enemy(x,y)
       this.x += this.dx
       this.y += this.dy
       -- spawn gremlin egg?
-      check_gremlin_spawn(max(0,flr(level/1.5)),this.x,this.y)
+      check_gremlin_spawn(max(01,flr(level/1.5)),this.x,this.y)
     else
       this.chomp-=1
       if this.chomp==0 then
@@ -90,7 +90,7 @@ end
 
 -- construct new gremlin
 function new_gremlin(x,y)
-  local obj={x=x,y=y,dx=0,dy=1,sprite=54,t=0,mode="egg",chomp=0,chompcoords={}}
+  local obj={x=x,y=y,dx=0,dy=1,sprite=34,t=0,mode="egg",chomp=0,chompcoords={}}
   obj.box={x1=1,y1=1,x2=7,y2=7}
 
   obj.update=function(this)
@@ -105,7 +105,7 @@ function new_gremlin(x,y)
     if this.mode=="egg" then
       if t%6<3 then this.flipx=true else this.flipx=false end
     elseif this.mode=="gremlin" then
-      if t%6<3 then this.sprite=55 else this.sprite=56 end
+      if t%6<3 then this.sprite=53 else this.sprite=54 end
     end
 
     --herky jerk
@@ -116,7 +116,7 @@ function new_gremlin(x,y)
         this.dy = (rnd(2)-1)*(enemyspeed*enemyspeed*49/10000+1)*0.25
       end
       -- bounce from edges
-      if (this.y<114 or this.y>124) then
+      if (this.y<107 or this.y>124) then
         this.dy=-this.dy*0.5
       end
       if (this.x<12 or this.x>128) then
@@ -138,7 +138,7 @@ function new_gremlin(x,y)
     end
 
     -- turn into gremlin?
-    if this.mode=="egg" and this.y>115 then
+    if this.mode=="egg" and this.y>107 then
       this.mode="gremlin"
       this.dy=0
     end
