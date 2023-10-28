@@ -13,10 +13,11 @@ end
 -- construct new enemy
 function new_enemy(x,y)
   local obj={x=x,y=y,dx=(rnd(3)-2)*0.75,dy=rnd(2)*0.75,sprite=16,t=0,mode="crab",chomp=0,chompcoords={}}
-  obj.box={x1=0,y1=2,x2=8,y2=8}
+  obj.box={x1=-1,y1=1,x2=9,y2=9}
 
   obj.update=function(this)
     this.t+=1
+    obj.col=abs_box(this)
 
     -- hitting player?
     if p.dying==0 and coll(this,p) then
@@ -50,10 +51,10 @@ function new_enemy(x,y)
 
     --move it unless chompin'
     if (this.chomp==0) then
-      this.x += this.dx
-      this.y += this.dy
+      this.x+=this.dx
+      this.y+=this.dy
       -- spawn gremlin egg?
-      check_gremlin_spawn(max(01,flr(level/1.5)),this.x,this.y)
+      check_gremlin_spawn(max(0,flr(level/1.5)),this.x,this.y)
     else
       this.chomp-=1
       if this.chomp==0 then
@@ -62,7 +63,7 @@ function new_enemy(x,y)
     end
 
     -- bounce from vertical edge
-    if (this.y<-1 or this.y>110) then
+    if (this.y<-1 or this.y>102) then
       this.dy=-this.dy
     end
     -- delete if offstage horizontally
@@ -76,6 +77,7 @@ function new_enemy(x,y)
 
   obj.draw = function(this)
     spr(this.sprite,this.x,this.y)
+    if (debug) rect(this.col.x1,this.col.y1,this.col.x2,this.col.y2,7)
   end
 
   obj.die=function(this)
