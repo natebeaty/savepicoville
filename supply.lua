@@ -87,6 +87,11 @@ function new_supply()
 
   obj.update=function(this)
     this.t+=1
+    --move it!
+    if this.has_deployed then this.x += this.dx * 2 else this.x += this.dx end
+    this.y += this.dy
+    obj.col=abs_box(this)
+
     -- hitting player?
     if (p.dying==0 and coll(this,p)) then
       p.die()
@@ -106,10 +111,6 @@ function new_supply()
     -- animate jet
     if t%4<2 then this.sprite=35 else this.sprite=36 end
 
-    --move it!
-    if this.has_deployed then this.x += this.dx * 2 else this.x += this.dx end
-    this.y += this.dy
-
     -- flip sprite based on direction
     this.flipx=this.dx>0
 
@@ -124,6 +125,7 @@ function new_supply()
 
   obj.draw=function(this)
     spr(this.sprite,this.x,this.y,1,1,this.flipx)
+    if (debug) rect(this.col.x1,this.col.y1,this.col.x2,this.col.y2,7)
   end
 
   obj.die=function(this)
@@ -145,12 +147,14 @@ function new_train()
     obj.dx=-1
   end
   if (rnd()>0.8) obj.express=true
-  obj.box={x1=0,y1=2,x2=15,y2=8}
+  obj.box={x1=0,y1=2,x2=22,y2=6}
 
   obj.update=function(this)
     this.t+=1
+    obj.col=abs_box(this)
+
     -- hitting player?
-    if (p.dying==0 and coll(this,p)) then
+    if (mode=="game" and p.dying==0 and coll(this,p)) then
       p.die()
     end
 
@@ -164,13 +168,13 @@ function new_train()
 
   obj.draw=function(this)
     -- draw train cars
-    local offset=-8
-    if (this.dx<0) offset=8
+    if (debug) rect(this.col.x1,this.col.y1,this.col.x2,this.col.y2,7)
+
     -- make red if express
     if (this.express) pal(9,8)
     spr(this.sprite,this.x,this.y)
-    spr(this.sprite,this.x+offset,this.y,1,1,true)
-    spr(this.sprite,this.x+offset*2,this.y,1,1,true)
+    spr(this.sprite,this.x+8,this.y,1,1,true)
+    spr(this.sprite,this.x+16,this.y,1,1,true)
     if (this.express) pal(9,9)
   end
 
