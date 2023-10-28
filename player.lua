@@ -33,12 +33,17 @@ function make_player()
   end
 
   p.die=function()
-    sfx(01)
+    if p.mode=="plane" then
+      sfx(01)
+      new_explosion(p.x,p.y)
+    else
+      -- sfx(01)
+      sfx(14)
+    end
     p.life=sub(p.life,0,#p.life-1)
     if (p.life=="") then
       game_over()
     else
-      new_explosion(p.x,p.y)
       p.dying=10
       p.dx=0
       p.dy=0
@@ -57,7 +62,8 @@ function make_player()
   p.draw=function()
     if p.dying==0 then
       if p.mode=="man" then
-        spr(0,p.x,p.y)
+        spr(0,p.x,p.y,1,1,p.flipx)
+        -- draw docked plane
         spr(18,4,104)
       else
         spr(p.sprite,p.x,p.y,1,1,p.flipx,p.flipy)
@@ -171,7 +177,6 @@ function make_player()
         if not btn(0) and not btn(1) then
           p.dx=0
           p.sprite=18
-          p.flipx=true
         else
           p.flipy=false
           p.sprite=21

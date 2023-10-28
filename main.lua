@@ -46,6 +46,7 @@ function screen_shake(offset)
 end
 
 function _init()
+  debug=false
   t=0
   level=1
   hiscore=0
