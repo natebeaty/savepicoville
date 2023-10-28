@@ -1,19 +1,19 @@
 --bullets functions
 
 function new_bullet(x,y,dx,dy)
-  local obj = {x=x,y=y,len=3}
+  local obj = {x=x,y=y,len=4}
   obj.box = {x1=-2,y1=-2,x2=2,y2=2} --collision box
-  obj.dx=dx*obj.len*2
-  obj.dy=dy*obj.len*2
-  obj.dx=minspeed(obj.dx,obj.len*2)
-  obj.dy=minspeed(obj.dy,obj.len*2)
+  if dx==0 then obj.dx=0 elseif dx<0 then obj.dx=-obj.len*2 else obj.dx=obj.len*2 end
+  if dy==0 then obj.dy=0 elseif dy<0 then obj.dy=-obj.len*2 else obj.dy=obj.len*2 end
 
   -- update loop
   obj.update=function(this)
+    local hit=false
     -- check for collisions with enemies
     for grp in all({enemies,gremlins}) do
       for obj in all(grp) do
-        if (coll(this,obj)) then
+        if (not hit and coll(this,obj)) then
+          hit=true
           if obj.mode=="egg" then
             p.score+=5
           elseif obj.mode=="gremlin" then
@@ -30,24 +30,26 @@ function new_bullet(x,y,dx,dy)
     end
 
     -- check for collisions with supply
-    for grp in all({supply,balloon}) do
-      for obj in all(grp) do
-        if (coll(this,obj)) then
-          obj.die(obj)
-          del(bullets,this)
+    if not hit then
+      for grp in all({supply,balloon}) do
+        for obj in all(grp) do
+          if (coll(this,obj)) then
+            obj.die(obj)
+            del(bullets,this)
+          end
         end
       end
+
+      -- check for collisions with building
+      check_building_hit(this,bullets)
     end
 
-    -- check for collisions with building
-    check_building_hit(this,bullets)
-
     --move the bullet
-    this.x += this.dx
-    this.y += this.dy
+    this.x+=this.dx
+    this.y+=this.dy
 
     -- offstage?
-    if (is_offstage(this, 20)) del(bullets, this)
+    if (this.y>115 or is_offstage(this, 20)) del(bullets, this)
   end
 
   -- draw loop
