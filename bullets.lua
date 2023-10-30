@@ -15,11 +15,11 @@ function new_bullet(x,y,dx,dy)
         if (not hit and coll(this,obj)) then
           hit=true
           if obj.mode=="egg" then
-            p.score+=5
+            p.scored(5)
           elseif obj.mode=="gremlin" then
-            p.score+=9
+            p.scored(9)
           else
-            p.score+=2
+            p.scored(2)
           end
           enemieskilled+=1
           obj.die(obj)
@@ -49,7 +49,7 @@ function new_bullet(x,y,dx,dy)
     this.y+=this.dy
 
     -- offstage?
-    if (this.y>115 or is_offstage(this, 20)) del(bullets, this)
+    if (this.y>117 or is_offstage(this, 20)) del(bullets, this)
   end
 
   -- draw loop
