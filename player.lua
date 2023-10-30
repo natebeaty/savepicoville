@@ -8,10 +8,11 @@ function make_player()
   p.y=113
   p.dx=0
   p.dy=0
-  p.life="♥♥♥"
   p.fuel=999
   p.lowfuel=300
+  p.life=3
   p.score=0
+  p.extralife=0
   p.dying=0
   p.mode="man"
   p.boxman={x1=2,y1=1,x2=5,y2=6} --collision box
@@ -32,6 +33,27 @@ function make_player()
     if (p.fuel>999) p.fuel=999
   end
 
+  p.reset=function()
+    p.fuel=999
+    p.mode="man"
+    p.score=0
+    p.extralife=0
+    p.life=3
+  end
+
+  p.scored=function(points)
+    p.score+=points
+    p.extralife+=points
+    -- extra life?
+    if p.extralife>=100 then
+      p.extralife=0
+      if (p.life<5) then
+        sfx(15)
+        p.life+=1
+      end
+    end
+  end
+
   p.die=function()
     if p.mode=="plane" then
       sfx(01)
@@ -40,8 +62,8 @@ function make_player()
       -- sfx(01)
       sfx(14)
     end
-    p.life=sub(p.life,0,#p.life-1)
-    if (p.life=="") then
+    p.life-=1
+    if (p.life==0) then
       game_over()
     else
       p.dying=10
