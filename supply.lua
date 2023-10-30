@@ -8,7 +8,7 @@ function check_train_spawn()
   if (#trains<1 and t%3==0 and rnd()>0.9) add(trains,new_train())
 end
 function check_balloon_spawn(obj)
-  if (not obj.has_deployed and rnd()>0.97) add(balloon,new_balloon(obj))
+  if (not obj.has_deployed and rnd()>0.96) add(balloon,new_balloon(obj))
 end
 
 -- new balloon!
@@ -19,7 +19,7 @@ function new_balloon(supply)
   sfx(09)
 
   obj.update=function(this)
-    obj.t+=1
+    this.t+=1
     -- hitting player?
     if (coll(this,p)) then
       sfx(10)
@@ -38,7 +38,7 @@ function new_balloon(supply)
     end
 
     -- parachute open?
-    if obj.t < 20 then
+    if this.t < 20 then
       if t%4<2 then this.sprite=37 else this.sprite=38 end
     else
       this.dx=0
@@ -90,7 +90,6 @@ function new_supply()
     --move it!
     if this.has_deployed then this.x += this.dx * 2 else this.x += this.dx end
     this.y += this.dy
-    obj.col=abs_box(this)
 
     -- hitting player?
     if (p.dying==0 and coll(this,p)) then
@@ -125,7 +124,6 @@ function new_supply()
 
   obj.draw=function(this)
     spr(this.sprite,this.x,this.y,1,1,this.flipx)
-    if (debug) rect(this.col.x1,this.col.y1,this.col.x2,this.col.y2,7)
   end
 
   obj.die=function(this)
@@ -151,7 +149,6 @@ function new_train()
 
   obj.update=function(this)
     this.t+=1
-    obj.col=abs_box(this)
 
     -- hitting player?
     if (mode=="game" and p.dying==0 and coll(this,p)) then
@@ -167,11 +164,9 @@ function new_train()
   end
 
   obj.draw=function(this)
-    -- draw train cars
-    if (debug) rect(this.col.x1,this.col.y1,this.col.x2,this.col.y2,7)
-
     -- make red if express
     if (this.express) pal(9,8)
+    -- draw train cars
     spr(this.sprite,this.x,this.y)
     spr(this.sprite,this.x+8,this.y,1,1,true)
     spr(this.sprite,this.x+16,this.y,1,1,true)
