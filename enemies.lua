@@ -7,7 +7,7 @@ end
 
 -- spawn gremlins?
 function check_gremlin_spawn(max,x,y)
-  if (x>20 and y>30 and y<90 and x<120 and #gremlins<max and rnd()>0.998) add(gremlins,new_gremlin(x,y))
+  if (x>20 and y>30 and y<90 and x<120 and #gremlins<max and rnd()>0.999-level/1000) add(gremlins,new_gremlin(x,y))
 end
 
 -- construct new enemy
@@ -17,7 +17,6 @@ function new_enemy(x,y)
 
   obj.update=function(this)
     this.t+=1
-    obj.col=abs_box(this)
 
     -- hitting player?
     if p.dying==0 and coll(this,p) then
@@ -26,11 +25,10 @@ function new_enemy(x,y)
     end
 
     -- animate
-    if t%4<2 then this.sprite=16 else this.sprite=17 end
+    if this.t%4<2 then this.sprite=16 else this.sprite=17 end
 
     --herky jerk
-    if this.t>10 and rnd()>0.95 then
-      this.t=0
+    if this.t%10==0 and rnd()>0.95 then
       this.dx = (rnd(2)-1)*(enemyspeed*enemyspeed*49/10000+1)*0.75
       if this.y>50 then
         this.dy = (rnd(2)-1)*(enemyspeed*enemyspeed*49/10000+1)*0.75
@@ -40,8 +38,7 @@ function new_enemy(x,y)
     end
 
     -- chomp?
-    if this.t>10 and this.chomp==0 and flr(this.y+8)%8==0 and flr(this.x+8)%8==0 and rnd()>0.25 then
-      this.t=0
+    if this.t%8==0 and this.chomp==0 and flr(this.y+8)%8==0 and flr(this.x+8)%8==0 and rnd()>0.25 then
       local hit=is_undamaged_brick(this.x,this.y,this,enemies,true)
       if hit then
         this.chompcoords=hit
@@ -54,7 +51,7 @@ function new_enemy(x,y)
       this.x+=this.dx
       this.y+=this.dy
       -- spawn gremlin egg?
-      check_gremlin_spawn(max(0,flr(level/1.5)),this.x,this.y)
+      if (this.t%2==0) check_gremlin_spawn(max(0,flr(level/1.5)),this.x,this.y)
     else
       this.chomp-=1
       if this.chomp==0 then
@@ -77,7 +74,6 @@ function new_enemy(x,y)
 
   obj.draw = function(this)
     spr(this.sprite,this.x,this.y)
-    if (debug) rect(this.col.x1,this.col.y1,this.col.x2,this.col.y2,7)
   end
 
   obj.die=function(this)
