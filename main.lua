@@ -46,28 +46,18 @@ function screen_shake(offset)
 end
 
 function _init()
-  debug=false
   t=0
   level=1
   hiscore=0
   enemieskilled=0
-  clrt={13,14,9,14,13}
+  titleshadowclr={13,14,9,14,13}
   enemyspeed=1
   mode="title"
-  explosions={}
-  buildingcrash={}
-  rumblingrows={}
   peopleleft=100
-  bullets={}
-  enemies={}
-  gremlins={}
-  trains={}
-  supply={}
-  balloon={}
   bonuscheck={x=0,y=15}
   bonuslastbrick=nil
+  empty_stage()
   make_player()
-  make_buildings()
   music(0,2500)
 end
 
@@ -87,23 +77,20 @@ function status_bar()
   if (mode=="game" and t%40<20 and p.fuel<p.lowfuel) fuelclr=7
   print("fuel:"..flr(p.fuel),4,2,fuelclr)
   print("score:"..p.score.."0",48,2,9)
-  print(p.life,100,2,9)
-end
-
-function check_level()
-  if (enemieskilled>=5 and level==1 or enemieskilled>=10) then
-    next_level()
+  for i=1,p.life do
+    spr(56,124-i*6,0)
   end
 end
 
-function next_level()
-  enemieskilled=0
-  enemies={}
-  gremlins={}
-  supply={}
-  balloon={}
-  bullets={}
+function check_level()
+  if (enemieskilled>=10 and level==1 or enemieskilled>=16) then
+    level_finished()
+  end
+end
+
+function level_finished()
   t=0
+  enemieskilled=0
   enemyspeed=level
   mode="bonus"
   -- set min/max starting points for bonuscheck
@@ -113,24 +100,43 @@ function next_level()
   end
 end
 
-function start_game()
-  make_buildings()
-  music(-1)
-  sfx(05)
+function next_level()
+  t=0
+  level+=1
   enemies={}
   gremlins={}
-  bullets={}
+  supply={}
+  balloon={}
+  p.respawn()
   mode="game"
+end
+
+function start_game()
+  empty_stage()
+  music(-1)
+  sfx(05)
+  mode="game"
+end
+
+function empty_stage()
+  enemies={}
+  gremlins={}
+  supply={}
+  balloon={}
+  bullets={}
+  trains={}
+  explosions={}
+  buildingcrash={}
+  rumblingrows={}
+  make_buildings()
 end
 
 function restart()
   t=0
-  balloons={}
   enemieskilled=0
-  p.score=0
-  p.life="♥♥♥"
+  p.reset()
   mode="title"
-  make_buildings()
+  empty_stage()
   music(0,2500)
 end
 
@@ -160,7 +166,7 @@ function _update()
         obj.update(obj)
       end
     end
-    --
+    -- set last bonus brick that flashed white to dark
     if bonuslastbrick~=nil then
       mset(bonuslastbrick.x,bonuslastbrick.y,05)
       bonuslastbrick=nil
@@ -178,7 +184,7 @@ function _update()
         map_sprite=mget(bonuscheck.x,bonuscheck.y)
       end
       -- unbroken brick
-      p.score+=1
+      p.scored(1)
       bonuslastbrick={x=bonuscheck.x,y=bonuscheck.y}
       sfx(12)
       mset(bonuscheck.x,bonuscheck.y,map_sprite+47) --white flash
@@ -190,11 +196,7 @@ function _update()
     else
       building_blink(1)
       if (t>10 and btnp(4)) then
-        -- add remaining bonus
-        t=0
-        level+=1
-        p.respawn()
-        mode="game"
+        next_level()
       end
     end
 
@@ -246,12 +248,12 @@ function _draw()
     -- rectfill(33,1,93,7,9)
     centertxt("clixel presents",2,12)
     if (t%6==0) then
-      local foo=deli(clrt,1)
-      add(clrt,foo)
+      local foo=deli(titleshadowclr,1)
+      add(titleshadowclr,foo)
     end
-    pal(13,clrt[1])
+    pal(13,titleshadowclr[1])
     spr(64,19,24,12,1)
-    pal(13,clrt[2])
+    pal(13,titleshadowclr[2])
     spr(64,19,23,12,1)
     pal(13,10)
     spr(64,19,22,12,1)
