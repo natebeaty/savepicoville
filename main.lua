@@ -33,16 +33,10 @@ function is_offstage(obj,offset)
   return obj.x<0-offset or obj.x>128+offset or obj.x<0-offset or obj.y>128+offset
 end
 
-function screen_shake(offset)
-  local offset_x=16-rnd(32)
-  local offset_y=16-rnd(32)
-  offset_x*=offset
-  offset_y*=offset
+function screen_shake()
+  local offset_x=1-rnd(2)
+  local offset_y=1-rnd(2)
   camera(offset_x,offset_y)
-  offset*=0.95
-  if offset<0.05 then
-    offset=0
-  end
 end
 
 function _init()
