@@ -19,7 +19,7 @@ function new_enemy(x,y)
     this.t+=1
 
     -- hitting player?
-    if p.dying==0 and coll(this,p) then
+    if p.dying==0 and coll(this,p,-2) then
       p.die()
       this.die(this)
     end
