@@ -239,9 +239,9 @@ function _draw()
       end
     end
     rectfill(0,0,128,8,1)
-    -- rectfill(33,1,93,7,9)
     centertxt("clixel presents",2,12)
     if (t%6==0) then
+      -- rotate shadow colors
       local foo=deli(titleshadowclr,1)
       add(titleshadowclr,foo)
     end
@@ -251,9 +251,8 @@ function _draw()
     spr(64,19,23,12,1)
     pal(13,10)
     spr(64,19,22,12,1)
-    pal(13,13)
+    pal()
     centertxt("🅾️ start game",42,1)
-    -- rectfill(0,119,128,128,1)
     centertxt("hi-score:"..pad(hiscore.."0",6),114,9,2)
 
   elseif mode=="game" then

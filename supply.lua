@@ -170,7 +170,7 @@ function new_train()
     spr(this.sprite,this.x,this.y)
     spr(this.sprite,this.x+8,this.y,1,1,true)
     spr(this.sprite,this.x+16,this.y,1,1,true)
-    if (this.express) pal(9,9)
+    pal()
   end
 
   return obj

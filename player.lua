@@ -55,11 +55,10 @@ function make_player()
   end
 
   p.die=function()
+    new_explosion(p.x,p.y)
     if p.mode=="plane" then
       sfx(01)
-      new_explosion(p.x,p.y)
     else
-      -- sfx(01)
       sfx(14)
     end
     p.life-=1
