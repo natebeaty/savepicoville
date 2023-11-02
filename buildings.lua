@@ -1,6 +1,6 @@
 -- buildings
 
--- blink lights
+-- randomly blink building lights
 function building_blink(chk)
   if t%chk==0 then
     -- blink undamaged building lights
@@ -29,26 +29,31 @@ function make_buildings()
     end
   end
 
-  -- reset peopleleft
+  -- track people left (undamaged bricks)
   peopleleft=0
 
   -- generate random buildings
   buildings={}
-  lastx=1
+  local lastx=1
+  local twidth=3
   for i=1,4 do
-    building={
-      height=flr(rnd(6)+3),
-      width=flr(rnd(2))+2,
-      x=lastx
-    }
-    lastx=lastx+building.width+(flr(rnd(3)))
-    for n=1,building.height do
-      for x=1,building.width do
-        mset(building.x+x,14-n,flr(rnd(5))+1)
+    if (twidth<17) then
+      building={
+        height=flr(rnd(6)+3),
+        width=min(17-twidth,flr(rnd(2))+2),
+        x=lastx
+      }
+      local gap=flr(rnd(2)+1)
+      twidth+=building.width+gap
+      lastx=lastx+building.width+gap
+      for n=1,building.height do
+        for x=1,building.width do
+          mset(building.x+x,14-n,flr(rnd(5))+1)
+        end
       end
+      peopleleft+=building.height*building.width
+      add(buildings,building)
     end
-    peopleleft+=building.height*building.width
-    add(buildings,building)
   end
 end
 
@@ -71,8 +76,8 @@ function is_undamaged_brick(x,y,obj,grp,keep)
   local my=flr(y/8)
   local map_sprite=mget(mx,my)
   local chk=fget(map_sprite,1) and not fget(map_sprite,2)
-  -- make player
-  if (grp=="player" or grp==balloon) chk=fget(map_sprite,1)
+  -- player, balloon, and egg checks test against broken bricks also
+  if (grp=="player" or grp==balloon or grp=="egg") chk=fget(map_sprite,1)
   if chk then
     if not keep then
       -- remove object hitting building
@@ -169,7 +174,15 @@ function building_update()
       obj.building.height-=obj.rowbusted
     end
     -- you killed picoville!
-    if (peopleleft<=0 and mode=="game") game_over()
+    if peopleleft<=0 then
+      -- reset timer
+      t=0
+      if mode=="game" then
+        game_over()
+      end
+    end
     buildingcrash={}
   end
+  -- restart title stage if all buildings are destroyed
+  if (t>150 and peopleleft<=0 and mode!="game") restart()
 end
