@@ -96,7 +96,6 @@ function new_man_bullet(x,y,dx,dy)
       end
     end
 
-
     --move the bullet
     this.x += this.dx
     this.y += this.dy

@@ -1,6 +1,6 @@
 --collision functions
 
--- get absolute coordinates
+-- get absolute coordinates of a hitbox
 function abs_box(s)
   local box={}
   box.x1=s.box.x1+s.x
@@ -10,15 +10,16 @@ function abs_box(s)
   return box
 end
 
--- check if object a and b are colliding
-function coll(a,b)
+-- check if object a and b are colliding (optional offset to reduce accuracy)
+function coll(a,b,offset)
+  offset=offset or 0
   local box_a=abs_box(a)
   local box_b=abs_box(b)
   local hit=true
-  if box_a.x1>box_b.x2 or
-    box_a.y1>box_b.y2 or
-    box_b.x1>box_a.x2 or
-    box_b.y1>box_a.y2 then
+  if box_a.x1>box_b.x2+offset or
+    box_a.y1>box_b.y2+offset or
+    box_b.x1>box_a.x2+offset or
+    box_b.y1>box_a.y2+offset then
     hit=false
   end
   return hit
