@@ -6,8 +6,12 @@ function check_enemy_spawn(max)
 end
 
 -- spawn gremlins?
-function check_gremlin_spawn(max,x,y)
-  if (x>20 and y>30 and y<90 and x<120 and #gremlins<max and rnd()>0.999-level/1000) add(gremlins,new_gremlin(x,y))
+function check_gremlin_spawn(obj,max)
+  if obj.x>15 and obj.y>30 and obj.y<90 and obj.x<120 then
+    if #gremlins<max and rnd()>0.95-level/1000 and not is_undamaged_brick(obj.x+obj.dx,obj.y+obj.dy,obj,"egg",true) then
+      add(gremlins,new_gremlin(obj.x,obj.y))
+    end
+  end
 end
 
 -- construct new enemy
@@ -29,11 +33,11 @@ function new_enemy(x,y)
 
     --herky jerk
     if this.t%10==0 and rnd()>0.95 then
-      this.dx = (rnd(2)-1)*(enemyspeed*enemyspeed*49/10000+1)*0.75
+      this.dx=(rnd(2)-1)*(enemyspeed*enemyspeed*49/10000+1)*0.75
       if this.y>50 then
-        this.dy = (rnd(2)-1)*(enemyspeed*enemyspeed*49/10000+1)*0.75
+        this.dy=(rnd(2)-1)*(enemyspeed*enemyspeed*49/10000+1)*0.75
       else
-        this.dy = (rnd())*(enemyspeed*enemyspeed*49/10000+1)*0.75
+        this.dy=(rnd())*(enemyspeed*enemyspeed*49/10000+1)*0.75
       end
     end
 
@@ -51,7 +55,7 @@ function new_enemy(x,y)
       this.x+=this.dx
       this.y+=this.dy
       -- spawn gremlin egg?
-      if (this.t%2==0) check_gremlin_spawn(max(0,flr(level/1.5)),this.x,this.y)
+      if (t%9==0) check_gremlin_spawn(this,max(5,flr(level/1.5)))
     else
       this.chomp-=1
       if this.chomp==0 then
@@ -72,7 +76,7 @@ function new_enemy(x,y)
     if (this.x<-10 or this.x>138) del(enemies,this)
   end
 
-  obj.draw = function(this)
+  obj.draw=function(this)
     spr(this.sprite,this.x,this.y)
   end
 
@@ -88,7 +92,7 @@ end
 
 -- construct new gremlin
 function new_gremlin(x,y)
-  local obj={x=x,y=y,dx=0,dy=1,sprite=34,t=0,mode="egg",chomp=0,chompcoords={}}
+  local obj={x=x,y=y,dx=0,dy=1,sprite=34,t=0,mode="egg",chomp=0,chompcoords={},bouncing=0}
   obj.box={x1=1,y1=1,x2=7,y2=7}
 
   obj.update=function(this)
@@ -100,32 +104,49 @@ function new_gremlin(x,y)
       this.die(this)
     end
 
+    -- animate egg or gremlin
     if this.mode=="egg" then
       if t%6<3 then this.flipx=true else this.flipx=false end
     elseif this.mode=="gremlin" then
       if t%6<3 then this.sprite=53 else this.sprite=54 end
     end
 
-    --herky jerk
+    --wandering gremlin
     if this.mode=="gremlin" then
       if this.t>10 and rnd()>0.98 then
         this.t=0
-        this.dx = (rnd(2)-1)*(enemyspeed*enemyspeed*49/10000+1)*0.25
-        this.dy = (rnd(2)-1)*(enemyspeed*enemyspeed*49/10000+1)*0.25
+        this.dx=(rnd(2)-1)*(enemyspeed*enemyspeed*49/10000+1)*0.25
+        this.dy=(rnd(2)-1)*(enemyspeed*enemyspeed*49/10000+1)*0.25
       end
       -- bounce from edges
       if (this.y<107 or this.y>124) then
         this.dy=-this.dy*0.5
       end
-      if (this.x<12 or this.x>128) then
+      if (this.x<10 or this.x>128) then
         this.dx=-this.dx
+      end
+    end
+
+    --bounce egg off buildings
+    if this.mode=="egg" then
+      local hit=is_undamaged_brick(this.x+3,this.y+this.dy+6,this,"egg",true)
+      if this.dy>0 and this.y<100 and hit then
+        this.dy=0
+        if rnd()>0.5 then this.dx=-0.33 else this.dx=0.33 end
+        this.bouncing=1
+      end
+      if this.dy==0 and not hit then
+        this.dy=1
+        this.bouncing=0
+        -- if (this.dx<0) this.x-=3
+        this.dx=0
       end
     end
 
     --move it unless chompin'
     if (this.chomp==0) then
-      this.x += this.dx
-      this.y += this.dy
+      this.x+=this.dx
+      this.y+=this.dy
     else
       this.chomp-=1
       if this.chomp==0 then
@@ -137,6 +158,7 @@ function new_gremlin(x,y)
 
     -- turn into gremlin?
     if this.mode=="egg" and this.y>107 then
+      sfx(16)
       this.mode="gremlin"
       this.dy=0
     end
@@ -154,8 +176,14 @@ function new_gremlin(x,y)
     if (this.x<-10 or this.x>138) del(gremlins,this)
   end
 
-  obj.draw = function(this)
-    spr(this.sprite,this.x,this.y,1,1,this.flipx)
+  obj.draw=function(this)
+    if this.bouncing>0 then
+      local bb={0,0,1,2,3,3,2,1,0,0}
+      spr(this.sprite,this.x,this.y-bb[this.bouncing%#bb+1],1,1,this.flipx)
+      this.bouncing+=1
+    else
+      spr(this.sprite,this.x,this.y,1,1,this.flipx)
+    end
     -- print(this.x.." "..this.y,20,20,7)
     -- print(this.dx.." "..this.dy,20,30,7)
   end
