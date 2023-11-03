@@ -86,6 +86,7 @@ function level_finished()
   t=0
   enemieskilled=0
   enemyspeed=level
+  bullets={}
   mode="bonus"
   -- set min/max starting points for bonuscheck
   for building in all(buildings) do
@@ -290,4 +291,5 @@ function _draw()
     centertxt("game  over",28,1)
     centertxt("🅾️ restart",42,1)
   end
+
 end
