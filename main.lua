@@ -40,9 +40,11 @@ function screen_shake()
 end
 
 function _init()
+  --persistent hiscore
+  cartdata("savepicoville")
   t=0
   level=1
-  hiscore=0
+  hiscore=dget(0) or 0
   enemieskilled=0
   titleshadowclr={13,14,9,14,13}
   enemyspeed=1
@@ -58,6 +60,7 @@ end
 function game_over()
   t=0
   hiscore=max(hiscore,p.score)
+  dset(0,hiscore) --record hiscore in cartdata
   level=1
   p.respawn()
   sfx(04)
