@@ -55,7 +55,7 @@ function new_enemy(x,y)
       this.x+=this.dx
       this.y+=this.dy
       -- spawn gremlin egg?
-      if (t%9==0) check_gremlin_spawn(this,max(5,flr(level/1.5)))
+      if (t%9==0) check_gremlin_spawn(this,max(0,flr(level/1.5)))
     else
       this.chomp-=1
       if this.chomp==0 then
