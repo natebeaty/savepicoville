@@ -50,7 +50,7 @@ function new_balloon(supply)
     check_building_hit(this,balloon)
 
     -- bottom of stage? pop balloon
-    if (this.y>112) this.die(this)
+    if (this.y>104) this.die(this)
 
     --move it
     this.x += this.dx
