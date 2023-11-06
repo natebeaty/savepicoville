@@ -77,7 +77,7 @@ end
 
 -- new supply!
 function new_supply()
-  local obj={x=0,y=15,dx=1,dy=0,sprite=35,flipx=false,t=0,has_deployed=false}
+  local obj={x=0,y=15+(rnd(10)),dx=1,dy=0,sprite=35,flipx=false,t=0,has_deployed=false}
   -- which side of screen to spawn from?
   if rnd(1)>0.35 then
     obj.x=128
