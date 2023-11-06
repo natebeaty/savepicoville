@@ -1,6 +1,6 @@
 --save picoville!
 
--- ensure min speeds, pos or neg
+--ensure min speeds, pos or neg
 function minspeed(spd,minspd)
   if (abs(spd)~=0 and abs(spd)<minspd) then
     if spd<0 then spd=-minspd else spd=minspd end
@@ -8,18 +8,20 @@ function minspeed(spd,minspd)
   return spd
 end
 
--- zero pad a number
+--zero pad a number
 function pad(string,length)
   string=""..string
   if (#string==length) return string
   return "0"..pad(string,length-1)
 end
 
+--center text with optional bg color
 function centertxt(str,y,clr,bg)
   if (bg) rectfill(64-(#str*2)-2,y-1,64+(#str*2),y+5,bg)
   print(str,64-#str*2,y,clr)
 end
 
+--get map sprite at a pixel location
 function getmapsprite(x,y)
   local mx=flr(x/8)
   local my=flr(y/8)
@@ -27,12 +29,13 @@ function getmapsprite(x,y)
   return map_sprite
 end
 
--- check if object offstage
+--check if object offstage
 function is_offstage(obj,offset)
   offset=offset or 0
   return obj.x<0-offset or obj.x>128+offset or obj.x<0-offset or obj.y>128+offset
 end
 
+--ye olde screen rattle
 function screen_shake()
   local offset_x=1-rnd(2)
   local offset_y=1-rnd(2)
@@ -40,8 +43,7 @@ function screen_shake()
 end
 
 function _init()
-  --persistent hiscore
-  cartdata("savepicoville")
+  cartdata("savepicoville") --persistent hiscore
   t=0
   level=1
   hiscore=dget(0) or 0
@@ -67,10 +69,11 @@ function game_over()
   mode="game over"
 end
 
+--stats on top of screen
 function status_bar()
   rectfill(0,0,128,8,1)
   local fuelclr=9
-  -- blink fuel if low (and game isn't over)
+  --blink fuel if low (and game isn't over)
   if (mode=="game" and t%40<20 and p.fuel<p.lowfuel) fuelclr=7
   print("fuel:"..flr(p.fuel),4,2,fuelclr)
   print("score:"..p.score.."0",48,2,9)
@@ -80,7 +83,8 @@ function status_bar()
 end
 
 function check_level()
-  if (enemieskilled>=10 and level==1 or enemieskilled>=16) then
+  --currently super basic difficulty ramp based on original game
+  if ((level==1 and enemieskilled>=10) or enemieskilled>=16) then
     level_finished()
   end
 end
@@ -116,6 +120,7 @@ function start_game()
   mode="game"
 end
 
+--clear out stage actors
 function empty_stage()
   enemies={}
   gremlins={}
@@ -226,14 +231,11 @@ function _update()
   end
 end
 
-function draw_bg()
-  map(0,0,0,0,128,32)
-end
-
 -- draw!
 function _draw()
   cls()
-  draw_bg()
+  --draw the stage including generated buildings
+  map(0,0,0,0,128,32)
 
   if mode=="title" then
 
