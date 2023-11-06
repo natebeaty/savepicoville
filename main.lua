@@ -16,7 +16,7 @@ function pad(string,length)
 end
 
 function centertxt(str,y,clr,bg)
-  if (bg) rectfill(64-(#str*2)-1,y-1,64+(#str*2)-1,y+5,bg)
+  if (bg) rectfill(64-(#str*2)-2,y-1,64+(#str*2),y+5,bg)
   print(str,64-#str*2,y,clr)
 end
 
@@ -257,7 +257,8 @@ function _draw()
     spr(64,19,22,12,1)
     pal()
     centertxt("🅾️ start game",42,1)
-    centertxt("hi-score:"..pad(hiscore.."0",6),114,9,2)
+    centertxt("hi-score:"..pad(hiscore.."0",6),113,1,2)
+    centertxt("hi-score:"..pad(hiscore.."0",6),114,9)
 
   elseif mode=="game" then
 
