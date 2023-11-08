@@ -25,6 +25,12 @@ function centertxt(str,y,clr,bg)
   print(str,64-#str*2,y,clr)
 end
 
+--text with bg
+function bgtxt(str,x,y,clr,bg)
+  rectfill(x-2,y-1,x+#str*4,y+5,bg)
+  print(str,x,y,clr)
+end
+
 --get map sprite at a pixel location
 function getmapsprite(x,y)
   local mx=flr(x/8)
