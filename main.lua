@@ -153,7 +153,7 @@ function _update()
     check_train_spawn()
     for grp in all({enemies,gremlins,rumblingrows,trains}) do
       for obj in all(grp) do
-        obj.update(obj)
+        obj:update()
       end
     end
     -- enough time has elapsed and btn is pressed
@@ -165,7 +165,7 @@ function _update()
 
     for grp in all({explosions,rumblingrows,trains}) do
       for obj in all(grp) do
-        obj.update(obj)
+        obj:update()
       end
     end
     -- set last bonus brick that flashed white to dark
@@ -211,7 +211,7 @@ function _update()
     check_train_spawn()
     for grp in all({bullets,enemies,gremlins,supply,balloon,explosions,rumblingrows,trains}) do
       for obj in all(grp) do
-        obj.update(obj)
+        obj:update()
       end
     end
 
@@ -220,7 +220,7 @@ function _update()
     building_blink(1)
     for grp in all({enemies,gremlins,supply,balloon,explosions,rumblingrows,trains}) do
       for obj in all(grp) do
-        obj.update(obj)
+        obj:update()
       end
     end
     if (t>10 and btnp(4)) then
@@ -240,7 +240,7 @@ function _draw()
 
     for grp in all({enemies,gremlins,rumblingrows,trains}) do
       for obj in all(grp) do
-        obj.draw(obj)
+        obj:draw()
       end
     end
     rectfill(0,0,128,8,1)
@@ -265,7 +265,7 @@ function _draw()
 
     for grp in all({bullets,enemies,gremlins,supply,balloon,explosions,rumblingrows,trains}) do
       for obj in all(grp) do
-        obj.draw(obj)
+        obj:draw()
       end
     end
     p.draw()
@@ -275,7 +275,7 @@ function _draw()
 
     for grp in all({explosions,rumblingrows,trains}) do
       for obj in all(grp) do
-        obj.draw(obj)
+        obj:draw()
       end
     end
     status_bar()
@@ -288,7 +288,7 @@ function _draw()
 
     for grp in all({enemies,gremlins,supply,balloon,explosions,rumblingrows,trains}) do
       for obj in all(grp) do
-        obj.draw(obj)
+        obj:draw()
       end
     end
     rectfill(0,0,128,8,1)
