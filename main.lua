@@ -291,7 +291,7 @@ function _draw()
     status_bar()
     print("level "..level.." complete",32,28,1)
     if bonuscheck.y<16 and t%30<15 then
-      print("bonus points",40,42,1)
+      print("bonus points",40,38,1)
     end
 
   elseif mode=="game over" then
@@ -303,8 +303,8 @@ function _draw()
     end
     rectfill(0,0,128,8,1)
     centertxt("score:"..p.score.."0",2,9)
-    centertxt("game  over",28,1)
-    centertxt("🅾️ restart",42,1)
+    centertxt("game over",28,1)
+    centertxt("restart",38,7,1)
   end
 
 end
