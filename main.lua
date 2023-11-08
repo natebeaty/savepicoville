@@ -72,10 +72,8 @@ end
 --stats on top of screen
 function status_bar()
   rectfill(0,0,128,8,1)
-  local fuelclr=9
   --blink fuel if low (and game isn't over)
-  if (mode=="game" and t%40<20 and p.fuel<p.lowfuel) fuelclr=7
-  print("fuel:"..flr(p.fuel),4,2,fuelclr)
+  print("fuel:"..flr(p.fuel),4,2,(mode=="game" and t%40<20 and p.fuel<p.lowfuel and 7 or 9))
   print("score:"..p.score.."0",48,2,9)
   for i=1,p.life do
     spr(56,124-i*6,0)
