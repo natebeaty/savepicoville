@@ -8,7 +8,7 @@ end
 -- spawn gremlins?
 function check_gremlin_spawn(obj,max)
   if obj.x>15 and obj.y>30 and obj.y<90 and obj.x<120 then
-    if #gremlins<max and rnd()>0.95-level/1000 and not is_undamaged_brick(obj.x+obj.dx,obj.y+obj.dy,obj,"egg",true) then
+    if #gremlins<max and rnd()>0.95-level/1000 and not is_undamaged_brick(obj.x,obj.y,obj,"egg",true) then
       add(gremlins,new_gremlin(obj.x,obj.y))
     end
   end
