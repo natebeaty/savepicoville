@@ -56,6 +56,7 @@ function _init()
   cartdata("savepicoville") --persistent hiscore
   t=0
   level=1
+  titlesel=1
   hiscore=dget(0) or 0
   enemieskilled=0
   titleshadowclr={13,14,9,14,13}
@@ -92,7 +93,7 @@ end
 
 function check_level()
   --currently super basic difficulty ramp based on original game
-  if ((level==1 and enemieskilled>=10) or enemieskilled>=16) then
+  if enemieskilled>=(level==1 and 10 or 16) then
     level_finished()
   end
 end
@@ -122,10 +123,10 @@ function next_level()
 end
 
 function start_game()
+  mode="game"
   empty_stage()
   music(-1)
   sfx(05)
-  mode="game"
 end
 
 --clear out stage actors
@@ -145,6 +146,7 @@ end
 
 function restart()
   t=0
+  titlesel=1
   enemieskilled=0
   p.reset()
   mode="title"
@@ -155,6 +157,14 @@ end
 function _update()
   t+=1
   building_update()
+
+  if mode=="about" then
+    if t>5 and (btnp(4) or btnp(5)) then
+      t=0
+      titlesel=1
+      mode="title"
+    end
+  end
 
   if mode=="title" then
 
@@ -167,8 +177,12 @@ function _update()
       end
     end
     -- enough time has elapsed and btn is pressed
-    if t>5 and btn(4) then
-      start_game()
+    if t>5 and (btnp(4) or btnp(5)) then
+      if (titlesel==1) start_game()
+      if (titlesel==2) mode="about"
+    end
+    if t>5 and (btnp(2) or btnp(3)) then
+      titlesel=(titlesel==1 and 2 or 1)
     end
 
   elseif mode=="bonus" then
@@ -207,7 +221,7 @@ function _update()
       end
     else
       building_blink(1)
-      if (t>10 and btnp(4)) then
+      if (t>10 and (btnp(4) or btnp(5))) then
         next_level()
       end
     end
@@ -233,7 +247,7 @@ function _update()
         obj:update()
       end
     end
-    if (t>10 and btnp(4)) then
+    if (t>10 and (btnp(4) or btnp(5))) then
       restart()
     end
 
@@ -246,6 +260,13 @@ function _draw()
   --draw the stage including generated buildings
   map(0,0,0,0,128,32)
 
+  if mode=="about" then
+    cls(12)
+    ?introgfx,0,0
+    ?titlegfx,5,0
+    centertxt("nate beaty • clixel 2023",120,9)
+  end
+
   if mode=="title" then
 
     for grp in all({enemies,gremlins,rumblingrows,trains}) do
@@ -256,6 +277,9 @@ function _draw()
     rectfill(0,0,128,8,1)
     centertxt("clixel presents",2,12)
     ?titlegfx,7,12
+    bgtxt("play game",71,51,7,(titlesel==1 and 1 or 12))
+    bgtxt("about+help",71,59,7,(titlesel==2 and 1 or 12))
+    --hi-score with shadow
     centertxt("hi-score:"..pad(hiscore.."0",6),113,1,2)
     centertxt("hi-score:"..pad(hiscore.."0",6),114,9)
 
