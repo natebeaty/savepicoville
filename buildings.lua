@@ -20,7 +20,8 @@ function building_blink(chk)
 end
 
 -- create randomized buildings
-function make_buildings()
+function make_buildings(maxheight)
+  maxheight=maxheight or 6
   rumblingrows={}
   -- reset all building tiles to sky
   for x=2,16 do
@@ -39,7 +40,7 @@ function make_buildings()
   for i=1,4 do
     if (twidth<17) then
       building={
-        height=flr(rnd(6)+3),
+        height=flr(rnd(maxheight)+3),
         width=min(17-twidth,flr(rnd(2))+2),
         x=lastx
       }
