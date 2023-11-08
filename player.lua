@@ -148,8 +148,7 @@ function make_player()
       end
 
       -- check for button presses to get sprite, flip, and direction
-      -- left
-      if btn(0) then
+      if btn(0) then --left
         p.flipx=true
         p.dx-=p.a
         if (p.dx>0 and p.dx<p.minspd) p.dx=-0.1
@@ -161,9 +160,7 @@ function make_player()
           p.flipx=true
           if (p.dy<0) then p.sprite=20 else p.sprite=21 end
         end
-      end
-      -- right
-      if btn(1) then
+      elseif btn(1) then --right
         p.flipx=false
         p.dx+=p.a
         if (p.dx<0 and abs(p.dx)<p.minspd) p.dx=0.1
@@ -176,8 +173,8 @@ function make_player()
           if (p.dy<0) then p.sprite=20 else p.sprite=21 end
         end
       end
-      -- up
-      if btn(2) then
+
+      if btn(2) then --up
         p.flipy=false
         p.dy-=p.a
         if (p.dy>0 and p.dy<p.minspd) p.dy=-0.1
@@ -189,9 +186,7 @@ function make_player()
           p.sprite=20
           if (p.dx<0) then p.flipx=true else p.flipx=false end
         end
-      end
-      -- down
-      if btn(3) then
+      elseif btn(3) then --down
         p.flipy=true
         p.dy+=p.a
         if (p.dy<0 and p.dy>-p.minspd) p.dy=0.1
@@ -205,7 +200,7 @@ function make_player()
       end
 
       -- fire
-      if btnp(4) then
+      if btnp(4) or btnp(5) then
         if mode=="game" and (p.mode=="man" or abs(p.dx)~=0 or abs(p.dy)~=0) then
           sfx(00)
           local dx=p.dx
