@@ -131,7 +131,8 @@ function empty_stage()
   explosions={}
   buildingcrash={}
   rumblingrows={}
-  make_buildings()
+  local maxheight=(mode=="title" and 3 or nil)
+  make_buildings(maxheight)
 end
 
 function restart()
