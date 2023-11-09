@@ -190,7 +190,7 @@ function new_gremlin(x,y)
 
   obj.die=function(this)
     sfx(02)
-    sfx(03)
+    sfx(19)
     new_explosion(this.x,this.y)
     del(gremlins,this)
   end
