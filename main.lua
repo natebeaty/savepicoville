@@ -51,6 +51,7 @@ end
 function _init()
   cartdata("savepicoville") --persistent hiscore
   t=0
+  camy=0
   level=1
   titlesel=1
   hiscore=dget(0) or 0
@@ -136,8 +137,7 @@ function empty_stage()
   explosions={}
   buildingcrash={}
   rumblingrows={}
-  local maxheight=(mode=="title" and 3 or nil)
-  make_buildings(maxheight)
+  make_buildings(mode=="title" and 3 or nil)
 end
 
 function restart()
@@ -155,7 +155,14 @@ function _update()
   building_update()
 
   if mode=="about" then
+    if t>25 then
+      camy+=1
+      camy=min(128,camy)
+    end
+
     if t>5 and (btnp(4) or btnp(5)) then
+      sfx(18)
+      camera()
       t=0
       titlesel=1
       mode="title"
@@ -172,12 +179,19 @@ function _update()
         obj:update()
       end
     end
-    -- enough time has elapsed and btn is pressed
+    --either action button runs selected menu item
     if t>5 and (btnp(4) or btnp(5)) then
+      sfx(18)
       if (titlesel==1) start_game()
-      if (titlesel==2) mode="about"
+      if (titlesel==2) then
+        mode="about"
+        t=0
+        camy=0
+      end
     end
+    --up/down changes menu item
     if t>5 and (btnp(2) or btnp(3)) then
+      sfx(17)
       titlesel=(titlesel==1 and 2 or 1)
     end
 
@@ -244,6 +258,7 @@ function _update()
       end
     end
     if (t>10 and (btnp(4) or btnp(5))) then
+      sfx(18)
       restart()
     end
 
@@ -258,9 +273,41 @@ function _draw()
 
   if mode=="about" then
     cls(12)
+    --print title gfx
     ?introgfx,0,0
-    ?titlegfx,5,0
-    centertxt("nate beaty • clixel 2023",120,9)
+    ?titlegfx,5,1
+    rectfill(0,128,128,256,13)
+
+    centertxt("oh no! picoville is under",132,1)
+    centertxt("attack! fight back the mutants",139,1)
+    centertxt("and save as many as you can",146,1)
+
+    spr(t%10<5 and 16 or 17,40,158)
+    print("20 pts",55,160,7)
+
+    spr(34,40,168,1,1,t%10<5 and true or false)
+    print("50 pts",55,170,7)
+
+    pal(13,5)
+    spr(t%10<5 and 53 or 54,40,178)
+    print("90 pts",55,180,7)
+    pal(13,13)
+
+    spr(t%10<5 and 39 or 40,40,188)
+    print("400 fuel",55,190,7)
+
+    spr(56,40,198)
+    print("every 1000",55,200,7)
+
+    spr(01,40,208)
+    print("10 pts bonus",55,210,7)
+    print("each round",55,217,7)
+
+    --pan down
+    -- camera(0,128)
+    camera(0,camy)
+    centertxt("back to title",232,7,1)
+    centertxt("nate beaty • clixel 2023",246,9)
   end
 
   if mode=="title" then
@@ -311,8 +358,8 @@ function _draw()
     end
     rectfill(0,0,128,8,1)
     centertxt("score:"..p.score.."0",2,9)
-    centertxt("game over",28,1)
-    centertxt("restart",38,7,1)
+    spr(64,45,18,5,4)
+    centertxt("restart",52,7,1)
   end
 
 end
