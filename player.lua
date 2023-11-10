@@ -18,6 +18,8 @@ function make_player()
   p.boxman={x1=2,y1=1,x2=5,y2=6} --collision box
   p.boxplane={x1=0,y1=0,x2=7,y2=7}
   p.box=p.boxman
+  p.dir="n"
+  p.smokes={{x=0,y=0},{x=0,y=0},{x=0,y=0},{x=0,y=0}}
 
   p.flipx=false --flip horizontal
   p.flipy=false --flip vertical
@@ -80,22 +82,31 @@ function make_player()
     p.dy=0
   end
 
-  p.draw=function()
-    if p.dying==0 then
-      if p.mode=="man" then
-        spr(0,p.x,p.y,1,1,p.flipx)
-        -- draw docked plane
-        spr(18,4,104)
-      else
-        spr(p.sprite,p.x,p.y,1,1,p.flipx,p.flipy)
-      end
+  --smoke from back of plane (this is a mess! but it works?)
+  p.smoke=function()
+    -- local x,y=p.x,p.y
+    if p.dir=="n" then
+      p.smokes[t%#p.smokes]={x=p.x+3,y=p.y-p.dy*1.5+rnd(2)+6}
+    elseif p.dir=="s" then
+      p.smokes[t%#p.smokes]={x=p.x+3,y=p.y-p.dy*1.5-rnd(2)-1}
+    elseif p.dir=="w" then
+      p.smokes[t%#p.smokes]={x=p.x-p.dx*1.5+rnd(2)+4,y=p.y+4}
+    elseif p.dir=="e" then
+      p.smokes[t%#p.smokes]={x=p.x-p.dx*1.5-rnd(2)+2,y=p.y+4}
+    elseif p.dir=="se" then
+      p.smokes[t%#p.smokes]={x=p.x-p.dx*1.5-rnd(2),y=p.y-p.dy*1.5-rnd(2)}
+    elseif p.dir=="sw" then
+      p.smokes[t%#p.smokes]={x=p.x+p.dx*1.5+12+rnd(2),y=p.y-p.dy*1.5-rnd(2)}
+    elseif p.dir=="nw" then
+      p.smokes[t%#p.smokes]={x=p.x+p.dx*1.5+10+rnd(2),y=p.y-p.dy*1.5+8}
+    elseif p.dir=="ne" then
+      p.smokes[t%#p.smokes]={x=p.x-p.dx*1.5-rnd(2),y=p.y-p.dy*1.5+rnd(2)+8}
     end
-    -- print(p.x..","..p.y,40,10,5)
-    -- print(p.dx..","..p.dy,40,20,5)
   end
 
-  -- player update
+  --player update
   p.update=function()
+    --wait a spell before respawn
     if (p.dying>0) then
 
       p.dying-=1
@@ -105,6 +116,7 @@ function make_player()
 
     else
 
+      --switch between man/plane?
       if p.mode=="man" and p.y<112 then
         p.mode="plane"
         p.x=4
@@ -125,29 +137,32 @@ function make_player()
         end
       end
 
+      --man slow, plane fast
       if p.mode=="man" then
         p.maxspd=2
         p.drg=0.4
       else
         p.maxspd=2.5
-        p.drg=0.95 --friction (1=none,0=instant)
+        p.drg=0.95
       end
 
-      -- fuel check
+      --fuel check
       if (t%2==0) then
-        -- moving? reduce fuel
         if p.mode=="man" then
+          --manfuel
           p.fuel-=0.1
         else
+          --planefuel (empties faster based on velocity)
           if (p.dy~=0 or p.dx~=0) then p.fuel-=(abs(p.dx)+abs(p.dy)) else p.fuel-=0.5 end
         end
-        -- low fuel klaxon
+        --low fuel klaxon
         if (p.fuel<p.lowfuel and t%40==0) sfx(13)
         p.fuel=max(p.fuel,0)
+        --out of fuel!
         if (p.fuel==0) p.die()
       end
 
-      -- check for button presses to get sprite, flip, and direction
+      -- check for button presses to get sprite, flip, and direction (another mess that could be greatly simplified)
       if btn(0) then --left
         p.flipx=true
         p.dx-=p.a
@@ -156,9 +171,16 @@ function make_player()
           p.dy=0
           p.sprite=19
           p.flipy=false
+          p.dir="w"
         else
           p.flipx=true
-          if (p.dy<0) then p.sprite=20 else p.sprite=21 end
+          if (p.dy<0) then
+            p.sprite=20
+            p.dir="sw"
+          else
+            p.sprite=21
+            p.dir="nw"
+          end
         end
       elseif btn(1) then --right
         p.flipx=false
@@ -168,9 +190,16 @@ function make_player()
           p.dy=0
           p.sprite=19
           p.flipy=false
+          p.dir="e"
         else
           p.flipx=false
-          if (p.dy<0) then p.sprite=20 else p.sprite=21 end
+          if (p.dy<0) then
+            p.sprite=20
+            p.dir="se"
+          else
+            p.sprite=21
+            p.dir="ne"
+          end
         end
       end
 
@@ -182,9 +211,16 @@ function make_player()
           p.dx=0
           p.sprite=18
           p.flipx=false
+          p.dir="n"
         else
           p.sprite=20
-          if (p.dx<0) then p.flipx=true else p.flipx=false end
+          if (p.dx<0) then
+            p.flipx=true
+            p.dir="nw"
+          else
+            p.flipx=false
+            p.dir="ne"
+          end
         end
       elseif btn(3) then --down
         p.flipy=true
@@ -193,13 +229,19 @@ function make_player()
         if not btn(0) and not btn(1) then
           p.dx=0
           p.sprite=18
+          p.dir="s"
         else
-          p.flipy=false
           p.sprite=21
+          p.flipy=false
+          if (p.dx<0) then
+            p.dir="sw"
+          else
+            p.dir="se"
+          end
         end
       end
 
-      -- fire
+      --pewpew
       if btnp(4) or btnp(5) then
         if mode=="game" and (p.mode=="man" or abs(p.dx)~=0 or abs(p.dy)~=0) then
           sfx(00)
@@ -229,21 +271,25 @@ function make_player()
       if (can_move(p,p.dx,p.dy)) then
         p.x+=p.dx
         p.y+=p.dy
-        -- if no buttons pushed, ensure sprite is facing direction
+        p.smoke()
+        --if no buttons pushed, ensure sprite is facing direction (could be simplified with using 8 sprites and no flip!)
         if not btn(0) and not btn(1) and not btn(2) and not btn(3) then
           --up=sprite18 --down=sprite18,flipy
-          if p.dx==0 and p.dy<0 then p.sprite=18 p.flipy=false end
-          if p.dx==0 and p.dy>0 then p.sprite=18 p.flipy=true end
+          if p.dx==0 and p.dy<0 then p.sprite=18 p.flipy=false p.dir="n" end
+          if p.dx==0 and p.dy>0 then p.sprite=18 p.flipy=true p.dir="s" end
           --right=sprite19 --left=sprite19,flipx
-          if p.dx>0 and p.dy==0 then p.sprite=19 p.flipx=false end
-          if p.dx<0 and p.dy==0 then p.sprite=19 p.flipx=true end
+          if p.dx>0 and p.dy==0 then p.sprite=19 p.flipx=false p.dir="e" end
+          if p.dx<0 and p.dy==0 then p.sprite=19 p.flipx=true p.dir="w" end
           --upright=sprite20 --upleft=sprite20,flipx
-          if p.dx>0 and p.dy<0 then p.sprite=20 p.flipx=false end
-          if p.dx<0 and p.dy<0 then p.sprite=20 p.flipx=true end
+          if p.dx>0 and p.dy<0 then p.sprite=20 p.flipx=false p.dir="ne" end
+          if p.dx<0 and p.dy<0 then p.sprite=20 p.flipx=true p.dir="nw" end
           --downright=sprite21 --downleft=sprite21,flipx
-          if p.dx>0 and p.dy>0 then p.sprite=21 p.flipx=false end
-          if p.dx<0 and p.dy>0 then p.sprite=21 p.flipx=true end
+          if p.dx>0 and p.dy>0 then p.sprite=21 p.flipx=false p.dir="se" end
+          if p.dx<0 and p.dy>0 then p.sprite=21 p.flipx=true p.dir="sw" end
         end
+      else
+        p.dx=0
+        p.dy=0
       end
 
       --add drag
@@ -257,6 +303,27 @@ function make_player()
       end
 
     end
+  end
+
+  --player draw
+  p.draw=function()
+    if p.dying==0 then
+      if p.mode=="man" then
+        spr(0,p.x,p.y,1,1,p.flipx)
+        --draw docked plane if man
+        spr(18,4,104)
+      else
+        if abs(p.dx)>0 or abs(p.dy)>0 then
+          for i=1,3 do
+            pset(p.smokes[i].x+rnd(2),p.smokes[i].y+rnd(2),6)
+          end
+        end
+        spr(p.sprite,p.x,p.y,1,1,p.flipx,p.flipy)
+      end
+    end
+    -- print(p.dir,10,10,7)
+    -- print(p.x..","..p.y,40,10,5)
+    -- print(p.dx..","..p.dy,40,20,5)
   end
 
 end
