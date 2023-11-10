@@ -126,6 +126,36 @@ function start_game()
   sfx(05)
 end
 
+function about_page()
+  mode="about"
+  t=0
+  camy=0
+  cama=1
+  --initial set of clouds
+  clouds={
+    {spr=128,x=50,y=-10,dx=0.7},
+    {spr=128,x=-50,y=6,dx=0.35},
+    {spr=166,x=50,y=24,dx=-0.3},
+    {spr=166,x=-50,y=34,dx=0.5}
+  }
+  --randoclouds
+  for i=1,5 do
+    add(clouds,new_cloud())
+  end
+  userscrolled=false
+end
+
+function new_cloud()
+  local x=rnd()>0.5 and -100 or 130
+  local spd=(rnd(5)+1)/10
+  return {
+    spr=rnd()>0.5 and 128 or 166,
+    x=x,
+    y=-5+8*rnd(6),
+    dx=rnd()>0.5 and -spd or spd
+  }
+end
+
 --clear out stage actors
 function empty_stage()
   enemies={}
@@ -155,11 +185,36 @@ function _update()
   building_update()
 
   if mode=="about" then
-    if t>25 then
-      camy+=1
-      camy=min(128,camy)
+    --clouds
+    for cloud in all(clouds) do
+      cloud.x+=cloud.dx
+      if (cloud.dx<0 and cloud.x<-130) or (cloud.dx>0 and cloud.x>130) then
+        del(clouds,cloud)
+        add(clouds,new_cloud())
+      end
     end
 
+    --autoscroll if user hasn't scrolled manually
+    if not userscrolled and t>60 then
+      camy+=1
+    end
+
+    --arrow keys scroll up + down with inertia
+    if btn(2) or btn(3) then
+      userscrolled=true
+      cama+=1
+      if btn(2) then
+        camy-=1*cama
+      else
+        camy+=1*cama
+      end
+    else
+      cama=1
+    end
+
+    camy=mid(0,camy,128)
+
+    --action button goes to title
     if t>5 and (btnp(4) or btnp(5)) then
       sfx(18)
       camera()
@@ -184,9 +239,7 @@ function _update()
       sfx(18)
       if (titlesel==1) start_game()
       if (titlesel==2) then
-        mode="about"
-        t=0
-        camy=0
+        about_page()
       end
     end
     --up/down changes menu item
@@ -273,38 +326,55 @@ function _draw()
 
   if mode=="about" then
     cls(12)
+
+    --clouds
+    for cloud in all(clouds) do
+      --different sprite widths for clouds
+      local w=cloud.spr==128 and 12 or 10
+      spr(cloud.spr,cloud.x,cloud.y,w,2)
+    end
+
     --print title gfx
     ?introgfx,0,0
     ?titlegfx,5,1
     rectfill(0,128,128,256,13)
 
+    --glow eyes
+    if t%5>2 and t%8<3 then
+      spr(69,40,48,2,2)
+      spr(71,64,48,2,2)
+      pset()
+    elseif t%8>3 and t%8<7 then
+      spr(101,40,48,2,2)
+      spr(103,64,48,2,2)
+    end
+
     centertxt("oh no! picoville is under",132,1)
     centertxt("attack! fight back the mutants",139,1)
-    centertxt("and save as many as you can",146,1)
+    centertxt("and save the townspeople",146,1)
 
-    spr(t%10<5 and 16 or 17,40,158)
-    print("20 pts",55,160,7)
+    spr(t%10<5 and 16 or 17,37,158)
+    print("20 points",52,160,7)
 
-    spr(34,40,168,1,1,t%10<5 and true or false)
-    print("50 pts",55,170,7)
+    spr(34,37,168,1,1,t%10<5 and true or false)
+    print("50 points",52,170,7)
 
     pal(13,5)
-    spr(t%10<5 and 53 or 54,40,178)
-    print("90 pts",55,180,7)
+    spr(t%10<5 and 53 or 54,37,178)
+    print("90 points",52,180,7)
     pal(13,13)
 
-    spr(t%10<5 and 39 or 40,40,188)
-    print("400 fuel",55,190,7)
+    spr(t%10<5 and 39 or 40,37,188)
+    print("400 fuel",52,190,7)
 
-    spr(56,40,198)
-    print("every 1000",55,200,7)
+    spr(56,37,198)
+    print("every 1000",52,200,7)
 
-    spr(01,40,208)
-    print("10 pts bonus",55,210,7)
-    print("each round",55,217,7)
+    spr(01,37,209)
+    print("10 points",52,210,7)
+    print("each round",52,217,7)
 
     --pan down
-    -- camera(0,128)
     camera(0,camy)
     centertxt("back to title",232,7,1)
     centertxt("nate beaty • clixel 2023",246,9)
@@ -320,8 +390,8 @@ function _draw()
     rectfill(0,0,128,8,1)
     centertxt("clixel presents",2,12)
     ?titlegfx,7,12
-    bgtxt("play game",71,51,7,(titlesel==1 and 1 or 12))
-    bgtxt("about+help",71,59,7,(titlesel==2 and 1 or 12))
+    bgtxt("play",73,51,7,(titlesel==1 and 1 or 12))
+    bgtxt("about",71,59,7,(titlesel==2 and 1 or 12))
     --hi-score with shadow
     centertxt("hi-score:"..pad(hiscore.."0",6),113,1,2)
     centertxt("hi-score:"..pad(hiscore.."0",6),114,9)
