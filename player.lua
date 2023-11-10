@@ -84,7 +84,6 @@ function make_player()
 
   --smoke from back of plane (this is a mess! but it works?)
   p.smoke=function()
-    -- local x,y=p.x,p.y
     if p.dir=="n" then
       p.smokes[t%#p.smokes]={x=p.x+3,y=p.y-p.dy*1.5+rnd(2)+6}
     elseif p.dir=="s" then
@@ -96,11 +95,11 @@ function make_player()
     elseif p.dir=="se" then
       p.smokes[t%#p.smokes]={x=p.x-p.dx*1.5-rnd(2),y=p.y-p.dy*1.5-rnd(2)}
     elseif p.dir=="sw" then
-      p.smokes[t%#p.smokes]={x=p.x+p.dx*1.5+12+rnd(2),y=p.y-p.dy*1.5-rnd(2)}
+      p.smokes[t%#p.smokes]={x=p.x+p.dx*1.5+8+rnd(2),y=p.y-p.dy*1.5+2-rnd(2)}
     elseif p.dir=="nw" then
-      p.smokes[t%#p.smokes]={x=p.x+p.dx*1.5+10+rnd(2),y=p.y-p.dy*1.5+8}
+      p.smokes[t%#p.smokes]={x=p.x+p.dx*1.5+8+rnd(2),y=p.y-p.dy*1.5+6-rnd(2)}
     elseif p.dir=="ne" then
-      p.smokes[t%#p.smokes]={x=p.x-p.dx*1.5-rnd(2),y=p.y-p.dy*1.5+rnd(2)+8}
+      p.smokes[t%#p.smokes]={x=p.x-p.dx*1.5-rnd(2),y=p.y-p.dy*1.5+6+rnd(2)}
     end
   end
 
