@@ -337,7 +337,26 @@ function _draw()
     --print title gfx
     ?introgfx,0,0
     ?titlegfx,5,1
+    pal(7,1)
+    spr(73,50,120,4,1)
+    fillp(▤)
+    circfill(44,122,2,1)
+    circfill(82,122,2,1)
+    fillp()
+    pal()
+
+    --bottom bg
     rectfill(0,128,128,256,13)
+    --borders
+    rectfill(0,128,128,156,1)
+    rectfill(0,128,10,256,1)
+    rectfill(118,128,128,256,1)
+    rectfill(0,242,128,256,1)
+    --rounded corners
+    pset(11,157,1)
+    pset(117,157,1)
+    pset(11,241,1)
+    pset(117,241,1)
 
     --glow eyes
     if t%5>2 and t%8<3 then
@@ -349,35 +368,35 @@ function _draw()
       spr(103,64,48,2,2)
     end
 
-    centertxt("oh no! picoville is under",132,1)
-    centertxt("attack! fight back the mutants",139,1)
-    centertxt("and save the townspeople",146,1)
+    centertxt("oh no! picoville is under",133,9)
+    centertxt("attack! fight back the mutants",140,9)
+    centertxt("and save the townspeople",147,9)
 
-    spr(t%10<5 and 16 or 17,37,158)
-    print("20 points",52,160,7)
+    spr(t%10<5 and 16 or 17,37,160)
+    print("20 points",52,162,7)
 
-    spr(34,37,168,1,1,t%10<5 and true or false)
-    print("50 points",52,170,7)
+    spr(34,37,170,1,1,t%10<5 and true or false)
+    print("50 points",52,172,7)
 
     pal(13,5)
-    spr(t%10<5 and 53 or 54,37,178)
-    print("90 points",52,180,7)
+    spr(t%10<5 and 53 or 54,37,180)
+    print("90 points",52,182,7)
     pal(13,13)
 
-    spr(t%10<5 and 39 or 40,37,188)
-    print("400 fuel",52,190,7)
+    spr(t%10<5 and 39 or 40,37,190)
+    print("400 fuel",52,192,7)
 
-    spr(56,37,198)
-    print("every 1000",52,200,7)
+    spr(56,37,200)
+    print("every 1000",52,202,7)
 
-    spr(01,37,209)
-    print("10 points",52,210,7)
-    print("each round",52,217,7)
+    spr(01,37,211)
+    print("10 points",52,212,7)
+    print("each round",52,219,7)
 
     --pan down
     camera(0,camy)
-    centertxt("back to title",232,7,1)
-    centertxt("nate beaty • clixel 2023",246,9)
+    centertxt("back to title",231,7,1)
+    centertxt("nate beaty 2023",247,9)
   end
 
   if mode=="title" then
@@ -388,7 +407,10 @@ function _draw()
       end
     end
     rectfill(0,0,128,8,1)
-    centertxt("clixel presents",2,12)
+    pal(7,12)
+    spr(73,32,2,4,1)
+    pal()
+    print("presents",65,2,12)
     ?titlegfx,7,12
     bgtxt("play",73,51,7,(titlesel==1 and 1 or 12))
     bgtxt("about",71,59,7,(titlesel==2 and 1 or 12))
