@@ -64,7 +64,7 @@ function _init()
   bonuslastbrick=nil
   empty_stage()
   make_player()
-  music(0,2500)
+  music(1,2500)
 end
 
 function game_over()
@@ -177,7 +177,7 @@ function restart()
   p.reset()
   mode="title"
   empty_stage()
-  music(0,2500)
+  music(1,2500)
 end
 
 function _update()
