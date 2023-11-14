@@ -134,6 +134,7 @@ function new_rumblingrow(x,y,delay)
   local obj={x=x,y=y,delay=delay,t=0}
   obj.update=function(this)
     this.t+=1
+    shakeit=0.05
     if (this.t > this.delay+15) then
       del(rumblingrows,this)
       camera(0,0)
@@ -148,7 +149,6 @@ function new_rumblingrow(x,y,delay)
     else
       if this.t%3<2 then sprite=22 else sprite=23 end
     end
-    screen_shake()
     pset(this.x+rnd(10)-1,this.y+rnd(10)-1,1)
     pset(this.x+rnd(10)-1,this.y+rnd(10)-1,10)
     spr(sprite,this.x,this.y)

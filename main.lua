@@ -8,6 +8,21 @@ function minspeed(spd,minspd)
   return spd
 end
 
+--ye olde screen rattle
+function shakeitnow()
+  local fade = 0.95
+  local offset_x=16-rnd(32)
+  local offset_y=16-rnd(32)
+  offset_x*=shakeit
+  offset_y*=shakeit
+
+  camera(offset_x,offset_y)
+  shakeit*=fade
+  if shakeit<0.05 then
+    shakeit=0
+  end
+end
+
 --zero pad a number
 function pad(string,length)
   string=""..string
@@ -41,17 +56,11 @@ function is_offstage(obj,offset)
   return obj.x<0-offset or obj.x>128+offset or obj.x<0-offset or obj.y>128+offset
 end
 
---ye olde screen rattle
-function screen_shake()
-  local offset_x=1-rnd(2)
-  local offset_y=1-rnd(2)
-  camera(offset_x,offset_y)
-end
-
 function _init()
   cartdata("savepicoville") --persistent hiscore
   t=0
   camy=0
+  shakeit=0
   level=1
   titlesel=1
   hiscore=dget(0) or 0
@@ -185,7 +194,7 @@ function _update()
   building_update()
 
   if mode=="about" then
-    --clouds
+    --move the clouds
     for cloud in all(clouds) do
       cloud.x+=cloud.dx
       if (cloud.dx<0 and cloud.x<-130) or (cloud.dx>0 and cloud.x>130) then
@@ -199,7 +208,7 @@ function _update()
       camy+=1
     end
 
-    --arrow keys scroll up + down with inertia
+    --up/down scrolls with inertia
     if btn(2) or btn(3) then
       userscrolled=true
       cama+=1
@@ -321,6 +330,8 @@ end
 -- draw!
 function _draw()
   cls()
+  if (shakeit>0) shakeitnow()
+
   --draw the stage including generated buildings
   map(0,0,0,0,128,32)
 
