@@ -394,9 +394,9 @@ function _draw()
     print("each round",52,219,7)
 
     --pan down
-    camera(0,camy)
     centertxt("back to title",231,7,1)
     centertxt("nate beaty 2023",247,9)
+    camera(0,camy)
   end
 
   if mode=="title" then
