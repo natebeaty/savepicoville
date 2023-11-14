@@ -38,7 +38,7 @@ end
 
 --text with bg
 function bgtxt(str,x,y,clr,bg)
-  rectfill(x-2,y-1,x+#str*4,y+5,bg)
+  if (bg) rectfill(x-2,y-1,x+#str*4,y+5,bg)
   print(str,x,y,clr)
 end
 
@@ -423,8 +423,8 @@ function _draw()
     pal()
     print("presents",65,2,12)
     ?titlegfx,7,12
-    bgtxt("play",73,51,7,(titlesel==1 and 1 or 12))
-    bgtxt("about",71,59,7,(titlesel==2 and 1 or 12))
+    bgtxt("play",73,51,7,(titlesel==1 and 1 or nil))
+    bgtxt("about",71,59,7,(titlesel==2 and 1 or nil))
     --hi-score with shadow
     centertxt("hi-score:"..pad(hiscore.."0",6),113,1,2)
     centertxt("hi-score:"..pad(hiscore.."0",6),114,9)
