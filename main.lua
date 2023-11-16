@@ -330,7 +330,7 @@ end
 -- draw!
 function _draw()
   cls()
-  if (shakeit>0) shakeitnow()
+  if (mode~="about") shakeitnow()
 
   --draw the stage including generated buildings
   map(0,0,0,0,128,32)
