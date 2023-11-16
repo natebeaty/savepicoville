@@ -42,7 +42,7 @@ function new_enemy(x,y)
     end
 
     -- chomp?
-    if this.t%8==0 and this.chomp==0 and flr(this.y+8)%8==0 and flr(this.x+8)%8==0 and rnd()>0.25 then
+    if this.t%8==0 and this.chomp==0 and flr(this.y+8)%8<2 and flr(this.x+8)%8<2 and rnd()>0.25 then
       local hit=is_undamaged_brick(this.x,this.y,this,enemies,true)
       if hit then
         this.chompcoords=hit
