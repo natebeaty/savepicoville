@@ -21,7 +21,7 @@ end
 
 -- create randomized buildings
 function make_buildings(maxheight)
-  maxheight=maxheight or 6
+  maxheight=maxheight or 5
   rumblingrows={}
   -- reset all building tiles to sky
   for x=2,16 do
