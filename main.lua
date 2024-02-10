@@ -99,7 +99,7 @@ end
 
 function check_level()
   --currently super basic difficulty ramp based on original game
-  if enemieskilled>=(level==1 and 10 or 16*(level-1)) then
+  if enemieskilled>=10+16*(level-1) then
     level_finished()
   end
 end
