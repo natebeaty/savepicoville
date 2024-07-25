@@ -60,14 +60,20 @@ end
 
 -- collision detection for building
 function check_building_hit(obj,grp)
-  local nx_l=obj.x+obj.dx+obj.box.x1
-  local nx_r=obj.x+obj.dx+obj.box.x2
-  local ny_t=obj.y+obj.dy+obj.box.y1
-  local ny_b=obj.y+obj.dy+obj.box.y2
-  local hit=is_undamaged_brick(nx_l,ny_t,obj,grp) or
-    is_undamaged_brick(nx_l,ny_b,obj,grp) or
-    is_undamaged_brick(nx_r,ny_t,obj,grp) or
-    is_undamaged_brick(nx_r,ny_b,obj,grp)
+  local hit = false
+  if (grp==bullets) then
+    hit=is_undamaged_brick(obj.x,obj.y,obj,grp)
+  else
+    local nx_l=obj.x+obj.dx+obj.box.x1
+    local nx_r=obj.x+obj.dx+obj.box.x2
+    local ny_t=obj.y+obj.dy+obj.box.y1
+    local ny_b=obj.y+obj.dy+obj.box.y2
+    hit=is_undamaged_brick(nx_l,ny_t,obj,grp) or
+      is_undamaged_brick(nx_l,ny_b,obj,grp) or
+      is_undamaged_brick(nx_r,ny_t,obj,grp) or
+      is_undamaged_brick(nx_r,ny_b,obj,grp)
+  end
+
   return hit
 end
 

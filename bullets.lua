@@ -34,12 +34,15 @@ function new_bullet(x,y,dx,dy)
       for grp in all({supply,balloon}) do
         for obj in all(grp) do
           if (coll(this,obj)) then
+            hit = true
             obj.die(obj)
             del(bullets,this)
           end
         end
       end
+    end
 
+    if not hit then
       -- check for collisions with building
       check_building_hit(this,bullets)
     end
